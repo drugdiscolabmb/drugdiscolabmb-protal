@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lab Portal · Drug Disco Lab</title>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="googlebot" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="Lab members only.">
+<meta name="theme-color" content="#0a0914">
+<meta property="og:title" content="Lab Portal · Drug Disco Lab">
+<meta property="og:description" content="Lab members only.">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@400;600&family=Mitr:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0914; --panel:#16121f; --panel2:#221d33; --line:#3e3660;
+  --ink:#f4effd; --mute:#9d94bb; --dim:#6c6490;
+  --mint:#a6efcd; --lav:#c8b4ff; --pink:#ffadc8; --sky:#9fd6ff; --peach:#ffcf9e; --butter:#fff0a0;
+  --head:'Press Start 2P','Mitr',monospace;
+  --body:'Pixelify Sans','Mitr',system-ui,sans-serif;
+  --px:3px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:var(--body)}
+body{overflow-x:hidden}
+canvas{image-rendering:pixelated;image-rendering:crisp-edges}
+@keyframes blink{50%{opacity:0}}
+@keyframes nudge{50%{transform:translateX(3px)}}
+
+/* pixel frame = notched corners */
+.pf{--bc:var(--line);box-shadow:0 calc(-1*var(--px)) 0 0 var(--bc),0 var(--px) 0 0 var(--bc),calc(-1*var(--px)) 0 0 0 var(--bc),var(--px) 0 0 0 var(--bc)}
+
+#sky{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+.deco{position:absolute;top:0;left:0;right:0;height:420px;overflow:hidden;z-index:0;pointer-events:none}
+#giant{position:absolute;top:-30px;right:-70px;width:340px;height:340px;opacity:.5}
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:16px 20px 26px}
+
+/* HUD */
+.hud{display:flex;align-items:center;gap:12px;margin:3px;padding:9px 12px;background:rgba(22,18,31,.75);font:8px/1.6 var(--head);letter-spacing:.08em;color:var(--mute);text-transform:uppercase}
+.hud>span{white-space:nowrap}
+.hud .blip{width:6px;height:6px;flex:none;background:var(--mint);animation:blink 1s steps(1) infinite}
+.hud .right{margin-left:auto;color:var(--mint);white-space:nowrap}
+.hud .sep{color:var(--dim)}
+
+/* Hero */
+.hero{display:flex;align-items:center;gap:22px;margin:26px 3px 22px}
+#portal{width:108px;height:108px;flex:none}
+.kicker{margin:0 0 12px;font:10px var(--head);letter-spacing:.12em;color:var(--pink)}
+h1{margin:0;font:clamp(22px,4.2vw,40px)/1.15 var(--head);color:var(--ink);text-shadow:3px 3px 0 #3b2f7a,6px 6px 0 rgba(0,0,0,.55)}
+.sub{margin:12px 0 0;font-size:18px;color:var(--mute)}
+.sub b{color:var(--butter);font-weight:600}
+
+/* Search */
+.search{display:flex;align-items:center;gap:12px;margin:0 3px 26px;padding:11px 14px;background:var(--panel)}
+.search:focus-within{--bc:var(--mint)}
+.search .prompt{font:12px var(--head);color:var(--mint);animation:blink 1.1s steps(1) infinite}
+.search input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--ink);font:20px var(--body);caret-color:var(--mint)}
+.search input::placeholder{color:var(--dim)}
+kbd{font:9px var(--head);color:var(--mute);background:var(--panel2);padding:5px 6px}
+
+/* Destinations */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(236px,1fr));gap:24px;padding:3px}
+.dest{--c:var(--mint);position:relative;display:flex;flex-direction:column;padding:14px 16px;background:rgba(22,18,31,.9);color:inherit;text-decoration:none;cursor:pointer;outline:none;transition:transform .1s steps(2)}
+.dest:hover,.dest:focus-visible{--bc:var(--c);transform:translate(-3px,-3px);filter:drop-shadow(6px 6px 0 rgba(0,0,0,.75))}
+.dest:active{transform:none;filter:none}
+.d-top{display:flex;justify-content:space-between;align-items:center;gap:8px;font:8px var(--head);letter-spacing:.08em;color:var(--dim)}
+.d-top .l{display:flex;align-items:center;gap:8px}
+.key{color:var(--ink);background:var(--panel2);padding:4px 5px}
+.status{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.status i{display:inline-block;width:6px;height:6px;background:currentColor}
+.st-online{color:var(--mint)} .st-online i{animation:blink 1.2s steps(1) infinite}
+.st-beta{color:var(--sky)} .st-repair{color:var(--peach)} .st-soon,.st-nosignal{color:var(--dim)}
+.hole{display:block;width:144px;height:144px;margin:2px auto 0}
+.d-name{display:flex;align-items:center;gap:10px;margin:0;font:13px/1.45 var(--head);color:var(--c)}
+.d-name canvas{flex:none}
+.d-desc{flex:1;margin:10px 0 14px;font-size:17px;line-height:1.35;color:var(--mute)}
+.d-foot{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-top:13px;background:linear-gradient(90deg,var(--line) 50%,transparent 0) top left/12px 3px repeat-x}
+.coord{font:8px var(--head);color:var(--dim)}
+.go{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;font:10px var(--head);color:#120f1c;background:var(--c);box-shadow:inset -3px -3px 0 rgba(0,0,0,.25)}
+.dest:hover .go .ar,.dest:focus-visible .go .ar{animation:nudge .4s steps(2) infinite}
+.dest.uncharted{--c:var(--dim);cursor:default;background:rgba(22,18,31,.55)}
+.dest.uncharted:hover{transform:none;filter:none;--bc:var(--line)}
+.dest.uncharted .go{background:var(--panel2);color:var(--mute)}
+
+.empty{padding:30px 10px;text-align:center;font:10px/2 var(--head);color:var(--mute)}
+footer{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 20px;margin:30px 3px 0;font:8px/1.9 var(--head);letter-spacing:.06em;color:var(--dim)}
+footer b{font-weight:400;color:var(--mute)}
+
+/* Warp */
+#warp{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:#05040a}
+#warp.on{display:flex}
+#warpc{position:absolute;inset:0;width:100%;height:100%}
+.warp-txt{position:relative;padding:10px 16px;background:rgba(5,4,10,.78);text-align:center;font:12px/2.2 var(--head);color:var(--ink);text-shadow:3px 3px 0 #000}
+.warp-txt span{color:var(--wc,var(--mint))}
+
+#toast{position:fixed;left:50%;bottom:18px;z-index:60;max-width:calc(100% - 32px);padding:12px 16px;background:var(--panel2);--bc:var(--peach);font:9px/1.9 var(--head);color:var(--ink);transform:translate(-50%,calc(100% + 40px));visibility:hidden;transition:transform .15s steps(3),visibility 0s .15s}
+#toast.on{transform:translate(-50%,0);visibility:visible;transition:transform .15s steps(3)}
+#toast a{color:var(--mint)}
+
+/* Lock screen */
+body.locked .wrap{display:none}
+#lock{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:16px}
+body.locked #lock{display:flex}
+.lock-box{width:100%;max-width:440px;padding:26px 24px 22px;background:rgba(22,18,31,.92);text-align:center}
+#lockPortal{width:96px;height:96px;display:block;margin:0 auto 18px}
+.lock-box h2{margin:0 0 12px;font:clamp(15px,4vw,20px)/1.4 var(--head);color:var(--ink);text-shadow:3px 3px 0 #3b2f7a}
+.lock-sub{margin:0 0 20px;font-size:17px;color:var(--mute)}
+.lock-box form{display:flex;flex-direction:column;gap:14px}
+.lock-box .search{margin:0}
+.lock-box .search input{font:16px var(--head);letter-spacing:.15em}
+.remember{display:flex;align-items:center;justify-content:center;gap:10px;font:8px var(--head);color:var(--mute);cursor:pointer}
+.remember input{appearance:none;width:14px;height:14px;margin:0;background:var(--panel2);box-shadow:0 0 0 3px var(--line);cursor:pointer}
+.remember input:checked{background:var(--mint)}
+.unlock{align-self:center;border:0;cursor:pointer;font:11px var(--head);padding:11px 16px;background:var(--lav);color:#120f1c;box-shadow:inset -3px -3px 0 rgba(0,0,0,.25)}
+.unlock:hover,.unlock:focus-visible{background:var(--mint);outline:none}
+.unlock:disabled{background:var(--panel2);color:var(--mute);cursor:wait}
+.lock-msg{min-height:1.8em;margin:14px 0 0;font:9px/1.8 var(--head);color:var(--mute)}
+.lock-msg.bad{color:#ff8a6a}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.shake{animation:shake .3s steps(4)}
+.lockbtn{background:none;border:0;padding:0;cursor:pointer;font:inherit;letter-spacing:inherit;color:var(--mute)}
+.lockbtn:hover,.lockbtn:focus-visible{color:var(--pink);outline:none}
+
+@media (max-width:600px){
+  .wrap{padding:12px 16px 22px}
+  .hud .hide-s{display:none}
+  .hud{gap:10px;padding:9px 10px}
+  .hero{gap:14px;margin:20px 3px 18px}
+  #portal{width:72px;height:72px}
+  .kicker{font-size:8px}
+  .sub{font-size:16px}
+  #giant{width:220px;height:220px;right:-90px;top:-20px;opacity:.3}
+  .grid{grid-template-columns:1fr;gap:20px}
+  .hole{width:120px;height:120px}
+}
+@media (hover:none){.key,.keys-hint,kbd{display:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body class="locked">
+<canvas id="sky" aria-hidden="true"></canvas>
+<div class="deco" aria-hidden="true"><canvas id="giant" width="80" height="80"></canvas></div>
+
+<div id="lock" role="dialog" aria-labelledby="lockTitle">
+  <div class="lock-box pf" id="lockBox">
+    <canvas id="lockPortal" width="36" height="36" aria-hidden="true"></canvas>
+    <p class="kicker" id="lockLab"></p>
+    <h2 id="lockTitle">RESTRICTED SECTOR</h2>
+    <p class="lock-sub">Lab members only. Enter the access code to open the portal.</p>
+    <form id="lockForm" autocomplete="on">
+      <input type="text" name="username" value="lab-portal" autocomplete="username" hidden>
+      <label class="search pf">
+        <span class="prompt" aria-hidden="true">&gt;</span>
+        <input id="pw" type="password" placeholder="ACCESS CODE" autocomplete="current-password" aria-label="Access code" required>
+      </label>
+      <label class="remember"><input type="checkbox" id="remember" checked> REMEMBER THIS DEVICE</label>
+      <button class="unlock" id="unlockBtn" type="submit">UNLOCK ▶</button>
+    </form>
+    <p class="lock-msg" id="lockMsg" role="status"></p>
+  </div>
+</div>
+
+<main class="wrap">
+  <div class="hud pf">
+    <span class="blip"></span>
+    <span>PORTAL STATION <span id="station"></span></span>
+    <span class="sep hide-s">·</span>
+    <span id="stardate" class="hide-s"></span>
+    <span class="right">SYSTEMS ONLINE</span>
+  </div>
+
+  <header class="hero">
+    <canvas id="portal" width="36" height="36" aria-hidden="true"></canvas>
+    <div>
+      <p class="kicker" id="labname"></p>
+      <h1>LAB PORTAL</h1>
+      <p class="sub">Choose a destination and hit <b>WARP</b> to launch the app.</p>
+    </div>
+  </header>
+
+  <label class="search pf">
+    <span class="prompt" aria-hidden="true">&gt;</span>
+    <input id="q" type="search" placeholder="Search destinations…" autocomplete="off" aria-label="Search apps">
+    <kbd>/</kbd>
+  </label>
+
+  <section class="grid" id="grid" aria-label="Lab apps"></section>
+  <p class="empty" id="empty" hidden>NO DESTINATION FOUND.<br>TRY ANOTHER COORDINATE.</p>
+
+  <footer>
+    <span id="note"></span>
+    <span><span class="keys-hint"><b>1–9</b> WARP &nbsp;·&nbsp; <b>/</b> SEARCH &nbsp;·&nbsp; </span><button class="lockbtn" id="lockBtn" type="button">⏏ LOCK</button></span>
+  </footer>
+</main>
+
+<div id="warp" aria-live="polite"><canvas id="warpc"></canvas><div class="warp-txt"><span id="warpTop" style="color:inherit">ENTERING WORMHOLE</span><br>▶ <span id="warpDest"></span></div></div>
+<div id="toast" class="pf" role="status"></div>
+
+<script>
+/* ================================================================
+   Page settings. The app list itself lives encrypted in VAULT —
+   edit apps and the access code with portal-admin.html.
+   ================================================================ */
+const LAB = {
+  name: "DRUG DISCO LAB",
+  station: "DDL-01",
+  note: "NEW APP? ASK THE LAB ADMIN TO ADD IT",
+  showUncharted: true            // the "more coming soon" card at the end
+};
+
+/* The app list is ENCRYPTED below. Do not edit VAULT by hand —
+   use portal-admin.html (kept on the lab PC, never uploaded). */
+const VAULT = "AnWBlwMvxqUKcOgrCPW/uA==.VMbEGpfF84yAme4A.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";
+let APPS = [];
+/* ================================================================ */
+
+const $ = s => document.querySelector(s);
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const hex = h => [1,3,5].map(i => parseInt(h.slice(i,i+2),16));
+const BAYER = [[0,8,2,10],[12,4,14,6],[3,11,1,9],[15,7,13,5]].map(r => r.map(v => v/16 - .5));
+
+const PAL = {
+  mint:  { c:'#a6efcd', t:['#0e241d','#1d5543','#4fa678','#a6efcd','#effff8'] },
+  butter:{ c:'#fff0a0', t:['#2a210c','#6b561c','#d4ad45','#fff0a0','#fffbe6'] },
+  lav:   { c:'#c8b4ff', t:['#19142f','#3b2f7a','#8672df','#c8b4ff','#f3eeff'] },
+  pink:  { c:'#ffadc8', t:['#2a1220','#6e2a47','#d7638d','#ffadc8','#fff0f5'] },
+  sky:   { c:'#9fd6ff', t:['#0c1f30','#1f4f75','#4d98d4','#9fd6ff','#eef8ff'] },
+  peach: { c:'#ffcf9e', t:['#2a180b','#71401e','#df894d','#ffcf9e','#fff3e6'] },
+  void:  { c:'#6c6490', t:['#110e1b','#1f1a30','#2f2848','#4b4370','#6c6490'] },
+};
+for (const k in PAL) PAL[k].rgb = PAL[k].t.map(hex);
+
+const ICONS = {
+  monitor:["XXXXXXXXXXXX","X..........X","X.XX.......X","X.X........X","X..........X","X..........X","XXXXXXXXXXXX",".....XX.....","...XXXXXX..."],
+  coin:["...XXXX...",".XX....XX.",".X..XX..X.","X..XXXX..X","X..XX....X","X...XXX..X","X.....XX.X","X..XXXX..X",".X..XX..X.",".XX....XX.","...XXXX..."],
+  molecule:["XX.......XX","XX.......XX","..X.....X..","...X...X...","....XXX....","....XXX....","....XXX....",".....X.....",".....X.....","....XXX....","....XXX...."],
+  rocket:["....XX....","...XXXX...","...X..X...","...XXXX...","..XXXXXX..",".X.XXXX.X.","X..XXXX..X","...X..X...","..X....X.."],
+  flask:["...XXXX...","....XX....","....XX....","....XX....","...X..X...","..X....X..",".X.XXXX.X.","X.XXXXXX.X","XXXXXXXXXX"],
+  calendar:["..X....X..","XXXXXXXXXX","X........X","XXXXXXXXXX","X.X.X.X..X","X........X","X.X.X.X..X","X........X","XXXXXXXXXX"],
+  chart:["X.........","X......XX.","X......XX.","X...XX.XX.","X...XX.XX.","X.X.XX.XX.","X.X.XX.XX.","XXXXXXXXXX"],
+  book:["XXXX..XXXX","X...XX...X","X.XX.X.XXX","X...XX...X","X.XX.X.XXX","X...XX...X","XXXX.XXXXX","....XX...."],
+  server:["XXXXXXXXXX","X........X","X.XX...X.X","X........X","XXXXXXXXXX","X........X","X.XX...X.X","X........X","XXXXXXXXXX"],
+  search:["..XXXX....",".X....X...","X..XX..X..","X.X....X..","X......X..",".X....X...","..XXXXXX..","......XXX.",".......XXX","........XX"],
+  unknown:["..XXXX..",".XX..XX.",".....XX.","....XX..","...XX...","...XX...","........","...XX..."],
+};
+
+function iconCanvas(name, color, scale = 3) {
+  const bm = ICONS[name] || ICONS.rocket, h = bm.length, w = bm[0].length;
+  const c = document.createElement('canvas'); c.width = w + 1; c.height = h + 1;
+  c.style.width = (w + 1) * scale + 'px'; c.style.height = (h + 1) * scale + 'px';
+  const x = c.getContext('2d');
+  for (const [dx, dy, col] of [[1,1,'rgba(0,0,0,.55)'],[0,0,color]]) {
+    x.fillStyle = col;
+    bm.forEach((row, y) => [...row].forEach((ch, i) => ch === 'X' && x.fillRect(i + dx, y + dy, 1, 1)));
+  }
+  c.setAttribute('aria-hidden', 'true');
+  return c;
+}
+
+/* ---------- Pixel planet renderer ---------- */
+function renderPlanet(ctx, S, rgb, t, o) {
+  const img = ctx.createImageData(S, S), d = img.data, c = (S - 1) / 2, R = o.r;
+  const rx = R * 1.8, ry = R * .42, ct = Math.cos(-.32), st = Math.sin(-.32);
+  const put = (x, y, col) => { const k = (y * S + x) * 4, p = rgb[col]; d[k]=p[0]; d[k+1]=p[1]; d[k+2]=p[2]; d[k+3]=255; };
+  for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+    const dx = x - c, dy = y - c, rr = (dx*dx + dy*dy) / (R*R), inP = rr <= 1;
+    let col = -1;
+    if (o.ring) {
+      const u = dx*ct + dy*st, v = -dx*st + dy*ct, e = u*u/(rx*rx) + v*v/(ry*ry);
+      if (e > .6 && e < 1 && !(e > .74 && e < .8) && (v > 0 || !inP))
+        col = e > .8 ? 3 : (v > 0 ? 2 : 1);
+    }
+    if (col < 0 && inP) {
+      const nx = dx/R, ny = dy/R, nz = Math.sqrt(1 - rr);
+      const lon = Math.atan2(nx, nz) + t, lat = Math.asin(ny);
+      const band = Math.sin(lat * o.bands + Math.sin(lon*2 + o.seed) * .9);
+      const spot = Math.sin(lon*3 + o.seed*2) * Math.cos(lat*4);
+      const light = -.55*nx - .5*ny + .67*nz;
+      const v = 1.7 + light*2.1 + band*.45 - (spot > .7 ? .9 : 0) + BAYER[y&3][x&3]*.9;
+      col = Math.max(0, Math.min(4, Math.round(v)));
+    }
+    if (col >= 0) put(x, y, col);
+  }
+  if (o.moon) {
+    const a = t*1.7 + o.seed, mx = Math.round(c + Math.cos(a)*(R+8)), my = Math.round(c + Math.sin(a)*(R+8)*.38 - 2);
+    const behind = Math.sin(a) < 0;
+    for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
+      if (Math.abs(i) + Math.abs(j) === 2) continue;
+      const x = mx + i, y = my + j; if (x < 0 || y < 0 || x >= S || y >= S) continue;
+      const ddx = x - c, ddy = y - c;
+      if (behind && ddx*ddx + ddy*ddy <= R*R) continue;
+      put(x, y, (i < 0 || j < 0) ? 4 : 3);
+    }
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+/* ---------- Pixel wormhole renderer ----------
+   Classic tunnel mapping: depth = k / radius. Rings + spiral arms scroll
+   toward the viewer; hash-picked "lanes" carry hyperspace streaks. */
+const WHITE = [255,255,255];
+const frac = v => v - Math.floor(v);
+const hash = n => frac(Math.sin(n * 127.1 + 11.7) * 43758.5453);
+function renderWormhole(img, W, H, rgb, o) {
+  const d = img.data, cols = rgb.concat([WHITE]);
+  const R = o.R, Rn = o.R || o.Rn, rim = o.R ? 3.5 : 0;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const k = (y*W + x) * 4;
+    const dx = x - o.cx, dy = y - o.cy, dist = Math.hypot(dx, dy);
+    let col = -1;
+    if (R && dist > R + rim) { d[k+3] = 0; continue; }
+    if (R && dist > R) {                       // event-horizon rim
+      const a = Math.atan2(dy, dx) / (Math.PI*2);
+      const e = (dist - R) / rim, lit = frac(a*6 - o.spin*3) < .5;
+      col = e < .35 ? 4 : (e < .7 ? (lit ? 3 : 2) : (BAYER[y&3][x&3] < -.1 ? 1 : -1));
+    } else {                                   // tunnel interior
+      const rn = dist / Rn, bend = (1 - rn) * (1 - rn);
+      const bx = dx - o.bx * bend, by = dy - o.by * bend;
+      const bd = Math.hypot(bx, by), rr = Math.min(1.4, bd / Rn);
+      const depth = .3 / (rr + .03);
+      const a = Math.atan2(by, bx) / (Math.PI*2) + .5;
+      const u = a + depth * .11 + o.spin, v = depth + o.v;
+      const arm = frac(u * o.arms + v * .55), ring = frac(v * .8);
+      let lum = (1 - Math.min(rr,1)) ** 1.6 * 2.9 + .2 + (arm < .5 ? .45 : -.2) + (ring < .14 ? 1 : 0) + BAYER[y&3][x&3] * .8;
+      col = Math.max(0, Math.min(4, Math.round(lum)));
+      if (o.streak) {                          // thin 1px hyperspace streaks
+        const la = a * o.lanes, lane = Math.floor(la), off = Math.abs(frac(la) - .5) * Math.PI * 2 * bd / o.lanes;
+        if (off < .6 && rr > .2 && frac(v * .35 + hash(lane + o.seed)) < .06 * o.streak) col = 5;
+      }
+      if (rr < .09) col = 5;
+    }
+    if (col < 0) { d[k+3] = 0; continue; }
+    const p = cols[col]; d[k] = p[0]; d[k+1] = p[1]; d[k+2] = p[2]; d[k+3] = 255;
+  }
+  // matter spiralling in from outside the rim
+  if (o.R && o.inflow) for (let i = 0; i < o.inflow; i++) {
+    const f = frac(o.v * .12 + i / o.inflow), rad = R + rim + (1 - f) * 7;
+    const ang = i * 2.399 + f * 4 + o.spin * 6;
+    const px = Math.round(o.cx + Math.cos(ang) * rad), py = Math.round(o.cy + Math.sin(ang) * rad);
+    if (px < 0 || py < 0 || px >= W || py >= H) continue;
+    const k = (py*W + px) * 4, p = cols[f > .6 ? 5 : 3];
+    d[k] = p[0]; d[k+1] = p[1]; d[k+2] = p[2]; d[k+3] = 255;
+  }
+}
+
+/* ---------- Build cards ---------- */
+const grid = $('#grid'), cards = [], holes = [];
+$('#labname').textContent = LAB.name;
+$('#station').textContent = LAB.station;
+$('#note').textContent = '◆ ' + LAB.note;
+
+const STATUS = { online:'ONLINE', beta:'BETA', repair:'REPAIR', soon:'SOON', nosignal:'NO SIGNAL' };
+
+function makeCard(app, i, uncharted) {
+  const pal = PAL[uncharted ? 'void' : (app.color in PAL ? app.color : 'mint')];
+  const el = document.createElement(uncharted ? 'div' : 'a');
+  el.className = 'dest pf' + (uncharted ? ' uncharted' : '');
+  el.style.setProperty('--c', pal.c);
+  if (!uncharted) { el.href = app.url || '#'; el.target = '_blank'; el.rel = 'noopener'; }
+
+  const st = uncharted ? 'soon' : (!app.url ? 'nosignal' : (STATUS[app.status] ? app.status : 'online'));
+  const top = document.createElement('div'); top.className = 'd-top';
+  const l = document.createElement('span'); l.className = 'l';
+  if (!uncharted) { const k = document.createElement('span'); k.className = 'key'; l.append(k); el._key = k; }
+  l.append(document.createTextNode(uncharted ? 'SECTOR ??' : 'SECTOR ' + String(i + 1).padStart(2, '0')));
+  const s = document.createElement('span'); s.className = 'status st-' + st;
+  s.append(document.createElement('i'), document.createTextNode(STATUS[st]));
+  top.append(l, s);
+
+  const cv = document.createElement('canvas'); cv.className = 'hole'; cv.width = cv.height = 48; cv.setAttribute('aria-hidden', 'true');
+  const hctx = cv.getContext('2d');
+  const hole = { ctx: hctx, img: hctx.createImageData(48, 48), rgb: pal.rgb, base: uncharted ? .15 : .55 + (i % 3) * .1,
+    boost: 0, target: 0, dim: uncharted, ph: i * 1.9,
+    o: { cx: 23.5, cy: 23.5, R: 15, v: i * .37, spin: i * .21, bx: 0, by: 0, arms: 3 + i % 3, lanes: 22, seed: i * 7,
+         streak: uncharted ? 0 : 1, inflow: uncharted ? 0 : 9 } };
+  holes.push(hole);
+  if (!uncharted) {
+    const on = () => hole.target = 1, off = () => hole.target = 0;
+    el.addEventListener('mouseenter', on); el.addEventListener('mouseleave', off);
+    el.addEventListener('focus', on); el.addEventListener('blur', off);
+    el._hole = hole;
+  }
+
+  const h = document.createElement('h2'); h.className = 'd-name';
+  h.append(iconCanvas(uncharted ? 'unknown' : app.icon, pal.c), document.createTextNode(uncharted ? 'UNCHARTED' : app.name.toUpperCase()));
+  const p = document.createElement('p'); p.className = 'd-desc';
+  p.textContent = uncharted ? 'More destinations are on the way. New lab apps will land here.' : app.desc;
+
+  const f = document.createElement('div'); f.className = 'd-foot';
+  const co = document.createElement('span'); co.className = 'coord';
+  co.textContent = uncharted ? 'X:??? Y:???' : `X:${String(137 + i*211 % 900).padStart(3,'0')} Y:${String(42 + i*97 % 900).padStart(3,'0')}`;
+  const go = document.createElement('span'); go.className = 'go';
+  go.innerHTML = uncharted ? 'SOON' : 'WARP <span class="ar">▶</span>';
+  f.append(co, go);
+
+  el.append(top, cv, h, p, f);
+  if (!uncharted) {
+    el.addEventListener('click', e => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) { if (app.url) return; }
+      e.preventDefault(); if (el._hole) el._hole.target = 4; warpTo(app, pal);
+    });
+  }
+  grid.append(el);
+  return { el, app, text: uncharted ? '' : (app.name + ' ' + app.desc + ' ' + (app.keywords || '')).toLowerCase(), uncharted };
+}
+function launch(apps) {
+  APPS = apps;
+  APPS.forEach((a, i) => cards.push(makeCard(a, i, false)));
+  if (LAB.showUncharted) cards.push(makeCard({}, APPS.length, true));
+  filter();
+  document.body.classList.remove('locked');
+}
+
+/* ---------- Search ---------- */
+const q = $('#q');
+let visible = [];
+function filter() {
+  const toks = q.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  visible = [];
+  for (const c of cards) {
+    const show = c.uncharted ? !toks.length : toks.every(t => c.text.includes(t));
+    c.el.hidden = !show;
+    if (show && !c.uncharted) { visible.push(c); c.el._key.textContent = visible.length <= 9 ? visible.length : '·'; }
+  }
+  $('#empty').hidden = cards.some(c => !c.el.hidden);
+}
+q.addEventListener('input', filter);
+q.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && visible[0]) { e.preventDefault(); visible[0].el.click(); }
+  if (e.key === 'Escape') { q.value = ''; filter(); q.blur(); }
+});
+document.addEventListener('keydown', e => {
+  if (warping || document.body.classList.contains('locked') || e.target === q || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.key === '/') { e.preventDefault(); q.focus(); }
+  else if (/^[1-9]$/.test(e.key) && visible[+e.key - 1]) visible[+e.key - 1].el.click();
+});
+
+/* ---------- Stardate (Bangkok) ---------- */
+const fmt = new Intl.DateTimeFormat('en-CA', { timeZone:'Asia/Bangkok', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hourCycle:'h23' });
+function tick() {
+  const p = Object.fromEntries(fmt.formatToParts(new Date()).map(x => [x.type, x.value]));
+  $('#stardate').textContent = `STARDATE ${p.year}.${p.month}.${p.day} · ${p.hour}:${p.minute} ICT`;
+}
+tick(); setInterval(tick, 15000);
+
+/* ---------- Toast ---------- */
+let toastT;
+function toast(msg, link) {
+  const t = $('#toast'); t.textContent = msg;
+  if (link) { const a = document.createElement('a'); a.href = link; a.target = '_blank'; a.rel = 'noopener'; a.textContent = ' OPEN ▶'; t.append(a); }
+  t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), link ? 7000 : 4000);
+}
+
+/* ---------- Warp ---------- */
+let warping = false;
+function openApp(app) {
+  const w = window.open(app.url, '_blank');
+  if (w) { try { w.opener = null; } catch (e) {} }
+  else toast('POP-UP BLOCKED.', app.url);
+}
+function warpTo(app, pal) {
+  if (warping) return;
+  if (!app.url) { toast(`NO SIGNAL — ADD A URL FOR "${app.name.toUpperCase()}" IN THE APPS LIST.`); return; }
+  if (reduced) { openApp(app); return; }
+  runWarp(pal, 'ENTERING WORMHOLE', app.name.toUpperCase(), () => openApp(app));
+}
+function runWarp(pal, top, dest, done) {
+  warping = true;
+  const ov = $('#warp'), wc = $('#warpc'), x = wc.getContext('2d'), SC = 4;
+  $('#warpTop').textContent = top; $('#warpDest').textContent = dest;
+  ov.style.setProperty('--wc', pal.c); ov.classList.add('on');
+  wc.width = Math.ceil(innerWidth / SC); wc.height = Math.ceil(innerHeight / SC);
+  const W = wc.width, H = wc.height, cx = W / 2, cy = H / 2;
+  const tc = document.createElement('canvas'); tc.width = W; tc.height = H;
+  const tx = tc.getContext('2d'), timg = tx.createImageData(W, H);
+  const o = { cx, cy, R: 0, Rn: Math.min(W, H) * .55, v: 0, spin: 0, bx: 0, by: 0, arms: 4, lanes: 40, seed: 3, streak: 0 };
+  const cols = ['#ffffff', pal.c, '#c8b4ff', '#9fd6ff'];
+  const parts = Array.from({ length: 220 }, () => ({ x: Math.random()*2 - 1, y: Math.random()*2 - 1, z: Math.random()*1.1 + .15, c: cols[Math.random()*4 | 0] }));
+  const DUR = 1050, t0 = performance.now(); let last = t0, opened = false;
+  (function frame(now) {
+    const p = Math.min(1, (now - t0) / DUR), dt = Math.min(40, now - last); last = now;
+    // 1) wormhole tunnel, fading in and accelerating
+    o.v += (.4 + p * p * 9) * dt / 1000 * 1.6; o.spin += dt / 1000 * (.1 + p * .6);
+    o.bx = Math.sin(now * .003) * W * .06 * (1 - p); o.by = Math.cos(now * .0024) * H * .06 * (1 - p);
+    renderWormhole(timg, W, H, pal.rgb, o); tx.putImageData(timg, 0, 0);
+    x.fillStyle = '#05040a'; x.fillRect(0, 0, W, H);
+    x.globalAlpha = Math.min(1, p * 2.2); x.drawImage(tc, 0, 0); x.globalAlpha = 1;
+    // 2) star streaks jumping past the camera
+    const sp = (.004 + p * p * .05) * dt / 16, k = Math.min(W, H) * .5;
+    for (const s of parts) {
+      s.z -= sp;
+      if (s.z <= .03) { s.x = Math.random()*2 - 1; s.y = Math.random()*2 - 1; s.z = 1.2; continue; }
+      const z0 = s.z + sp * (3 + p * 10);
+      const x0 = cx + s.x / z0 * k, y0 = cy + s.y / z0 * k, x1 = cx + s.x / s.z * k, y1 = cy + s.y / s.z * k;
+      const n = Math.min(80, Math.max(Math.abs(x1-x0), Math.abs(y1-y0)) | 0) + 1;
+      x.fillStyle = s.c;
+      for (let i = 0; i <= n; i++) x.fillRect(Math.round(x0 + (x1-x0)*i/n), Math.round(y0 + (y1-y0)*i/n), 1, 1);
+    }
+    // 3) white-out at the exit
+    if (p > .82) { x.globalAlpha = (p - .82) / .18; x.fillStyle = '#ffffff'; x.fillRect(0, 0, W, H); x.globalAlpha = 1; }
+    if (p < 1) requestAnimationFrame(frame);
+    else if (!opened) {
+      opened = true; done();
+      setTimeout(() => { ov.classList.remove('on'); warping = false; holes.forEach(h => h.target = 0); }, 180);
+    }
+  })(t0);
+}
+
+/* ---------- Portal logo ---------- */
+const pctx = $('#portal').getContext('2d'), lctx = $('#lockPortal').getContext('2d');
+const PCOLS = ['#c8b4ff','#9fd6ff','#a6efcd','#ffadc8'].map(hex);
+function drawPortal(t) {
+  const S = 36, img = pctx.createImageData(S, S), d = img.data, c = 17.5;
+  for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+    const dx = x - c, dy = y - c, r = Math.hypot(dx, dy); if (r > 17.6) continue;
+    let rgb;
+    if (r > 15.4) rgb = (dx + dy < -4) ? [200,180,255] : (dx + dy > 6 ? [43,35,80] : [62,54,96]);
+    else if (r > 14.4) rgb = [10,9,20];
+    else if (r > 4.2) {
+      const a = Math.atan2(dy, dx) / (Math.PI*2) + .5;
+      const sw = a*3 + r*.13 - t*.0006;
+      const idx = Math.floor(((sw % 1) + 1) % 1 * 4 + BAYER[y&3][x&3]*.8 + 4) % 4;
+      const fade = .45 + .55 * (r - 4.2) / 10.2, p = PCOLS[idx];
+      rgb = [p[0]*fade, p[1]*fade, p[2]*fade];
+    } else {
+      const fl = (Math.sin(t*.008 + x*1.3 + y) > .6) ? 255 : 30;
+      rgb = r < 1.6 ? [255,255,255] : [fl, fl, Math.max(fl, 60)];
+    }
+    const k = (y*S + x)*4; d[k]=rgb[0]; d[k+1]=rgb[1]; d[k+2]=rgb[2]; d[k+3]=255;
+  }
+  pctx.putImageData(img, 0, 0);
+  if (document.body.classList.contains('locked')) lctx.putImageData(img, 0, 0);
+}
+
+/* ---------- Background giant ---------- */
+const gctx = $('#giant').getContext('2d');
+const giant = { ctx: gctx, S: 80, rgb: PAL.pink.rgb, speed: .08, o: { r: 20, ring: true, moon: false, bands: 7, seed: 2.2 } };
+
+/* ---------- Starfield + nebula ---------- */
+const sky = $('#sky'), sx = sky.getContext('2d'), SSC = 3;
+let SW, SH, stars = [], neb = null, shoot = null, nextShoot = 0;
+const STAR_TINT = ['#c8b4ff','#9fd6ff','#ffadc8','#fff0a0','#a6efcd'];
+function resizeSky() {
+  SW = Math.ceil(innerWidth / SSC); SH = Math.ceil(innerHeight / SSC);
+  sky.width = SW; sky.height = SH;
+  stars = Array.from({ length: Math.round(SW*SH / 80) }, () => {
+    const z = Math.random();
+    return { x: Math.random()*SW, y: Math.random()*SH, z, ph: Math.random()*6.3, c: z > .92 ? STAR_TINT[Math.random()*5 | 0] : '#ffffff' };
+  });
+  // dithered nebula, rendered once
+  neb = document.createElement('canvas'); neb.width = SW; neb.height = SH;
+  const nx = neb.getContext('2d'), img = nx.createImageData(SW, SH), d = img.data;
+  const A = [[43,28,74],[27,36,70],[20,52,58]];
+  for (let y = 0; y < SH; y++) for (let x = 0; x < SW; x++) {
+    const u = x / SW, v = y / SH;
+    const f1 = Math.sin(u*5.1 + Math.sin(v*3.3)*1.6) * Math.cos(v*4.2 - u*1.7) + Math.sin(u*11 + v*7)*.25;
+    const f2 = Math.sin(u*3.2 - 1.3 + Math.cos(v*5)*1.2) * Math.sin(v*2.7 + .8);
+    const g1 = f1 * (1 - u*.5) + BAYER[y&3][x&3]*.5, g2 = f2 * (.3 + u*.7) + BAYER[y&3][x&3]*.5;
+    let rgb = [10,9,20];
+    if (g1 > .55) rgb = A[0]; else if (g1 > .3) rgb = [22,17,40];
+    if (g2 > .6) rgb = A[1]; else if (g2 > .42 && rgb[0] === 10) rgb = [15,20,36];
+    if (g1 > .3 && g2 > .55) rgb = A[2];
+    const k = (y*SW + x)*4; d[k]=rgb[0]; d[k+1]=rgb[1]; d[k+2]=rgb[2]; d[k+3]=255;
+  }
+  nx.putImageData(img, 0, 0);
+}
+function drawSky(t, dt) {
+  sx.drawImage(neb, 0, 0);
+  for (const s of stars) {
+    if (!reduced) { s.x -= (.004 + s.z*s.z*.03) * dt; if (s.x < -2) { s.x = SW + 1; s.y = Math.random()*SH; } }
+    const X = Math.round(s.x), Y = Math.round(s.y);
+    if (s.z < .5) { sx.fillStyle = '#3a345c'; sx.fillRect(X, Y, 1, 1); continue; }
+    const tw = Math.sin(t*.003*(.5 + s.z) + s.ph);
+    sx.fillStyle = s.z < .85 ? (tw > .3 ? '#b8b0d8' : '#6c6490') : s.c;
+    sx.fillRect(X, Y, 1, 1);
+    if (s.z > .975 && tw > 0) { sx.globalAlpha = .55; sx.fillRect(X-1, Y, 3, 1); sx.fillRect(X, Y-1, 1, 3); sx.globalAlpha = 1; }
+  }
+  if (reduced) return;
+  if (!shoot && t > nextShoot) {
+    shoot = { x: Math.random()*SW*.8 + SW*.2, y: Math.random()*SH*.4, vx: -(1.2 + Math.random()), vy: .5 + Math.random()*.4, life: 0 };
+    nextShoot = t + 5000 + Math.random()*8000;
+  }
+  if (shoot) {
+    shoot.life += dt;
+    const k = dt / 16; shoot.x += shoot.vx * k * 1.6; shoot.y += shoot.vy * k * 1.6;
+    for (let i = 0; i < 12; i++) {
+      sx.globalAlpha = 1 - i/12; sx.fillStyle = i < 2 ? '#ffffff' : '#c8b4ff';
+      sx.fillRect(Math.round(shoot.x - shoot.vx*i), Math.round(shoot.y - shoot.vy*i), 1, 1);
+    }
+    sx.globalAlpha = 1;
+    if (shoot.life > 1400 || shoot.x < -20 || shoot.y > SH + 20) shoot = null;
+  }
+}
+
+/* ---------- Main loop ---------- */
+resizeSky();
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resizeSky, 150); });
+let lastT = performance.now(), lastSlow = 0;
+let lastHole = performance.now();
+function drawHoles(t) {
+  const dt = Math.min(120, t - lastHole) / 1000; lastHole = t;
+  for (const h of holes) {
+    h.boost += (h.target - h.boost) * Math.min(1, dt * 5);
+    const sp = h.base * (1 + h.boost * 2.2);            // hover = jump to lightspeed
+    h.o.v += sp * dt * 1.6; h.o.spin += sp * dt * .05;
+    h.o.bx = Math.sin(t * .0011 + h.ph) * 5; h.o.by = Math.cos(t * .0008 + h.ph) * 4;   // tunnel bends
+    h.o.streak = h.dim ? 0 : 1 + h.boost * 2;
+    renderWormhole(h.img, 48, 48, h.rgb, h.o);
+    h.ctx.putImageData(h.img, 0, 0);
+  }
+}
+function drawSlow(t) {
+  renderPlanet(giant.ctx, giant.S, giant.rgb, t * .001 * giant.speed, giant.o);
+  drawPortal(t);
+}
+function loop(t) {
+  const dt = Math.min(50, t - lastT); lastT = t;
+  drawSky(t, dt);
+  if (t - lastSlow > 90) { lastSlow = t; drawSlow(t); }   // ~11 fps for the 8-bit feel
+  if (t - lastHole > 55) drawHoles(t);                     // ~18 fps wormholes
+  requestAnimationFrame(loop);
+}
+if (reduced) { drawSky(0, 0); drawSlow(0); drawHoles(performance.now()); } else requestAnimationFrame(loop);
+
+/* ---------- Access-code vault ----------
+   The app list is AES-256-GCM encrypted with a key derived from the
+   access code (PBKDF2-SHA256). Without the code, the page source only
+   contains ciphertext — no app names or links. */
+const KDF_ITER = 310000, KEY_STORE = 'ddl-portal-key';
+const b64 = u8 => btoa(String.fromCharCode(...u8));
+const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+const store = {
+  get() { try { return JSON.parse(localStorage.getItem(KEY_STORE)); } catch (e) { return null; } },
+  set(v) { try { localStorage.setItem(KEY_STORE, JSON.stringify(v)); } catch (e) {} },
+  clear() { try { localStorage.removeItem(KEY_STORE); } catch (e) {} },
+};
+async function deriveKey(pw, salt) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: KDF_ITER, hash: 'SHA-256' }, base,
+    { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
+}
+async function openVault(key) {
+  const [, iv, ct] = VAULT.split('.').map(unb64);
+  const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
+  return JSON.parse(new TextDecoder().decode(pt)).apps;
+}
+const lockMsg = (t, bad) => { const m = $('#lockMsg'); m.textContent = t; m.classList.toggle('bad', !!bad); };
+$('#lockLab').textContent = LAB.name;
+
+async function tryRemembered() {
+  const saved = store.get();
+  if (!saved || !VAULT || saved.salt !== VAULT.split('.')[0]) { if (saved) store.clear(); return false; }
+  try {
+    const key = await crypto.subtle.importKey('raw', unb64(saved.key), 'AES-GCM', false, ['decrypt']);
+    launch(await openVault(key)); return true;
+  } catch (e) { store.clear(); return false; }
+}
+
+$('#lockForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const pw = $('#pw').value, btn = $('#unlockBtn');
+  if (!pw) return;
+  btn.disabled = true; btn.textContent = 'DECRYPTING…'; lockMsg('CHECKING CODE…');
+  try {
+    const salt = unb64(VAULT.split('.')[0]);
+    const key = await deriveKey(pw, salt);
+    const apps = await openVault(key);
+    if ($('#remember').checked) store.set({ salt: VAULT.split('.')[0], key: b64(new Uint8Array(await crypto.subtle.exportKey('raw', key))) });
+    lockMsg('ACCESS GRANTED.');
+    const reveal = () => { launch(apps); $('#pw').value = ''; };
+    if (reduced) reveal(); else runWarp(PAL.lav, 'ACCESS GRANTED', 'WELCOME ABOARD', reveal);
+  } catch (err) {
+    lockMsg('ACCESS DENIED — WRONG CODE.', true);
+    const box = $('#lockBox'); box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
+    $('#pw').select();
+  } finally { btn.disabled = false; btn.textContent = 'UNLOCK ▶'; }
+});
+
+$('#lockBtn').addEventListener('click', () => { store.clear(); location.reload(); });
+
+(async () => {
+  if (!window.crypto || !crypto.subtle) { lockMsg('OPEN THIS PAGE OVER HTTPS TO UNLOCK.', true); $('#unlockBtn').disabled = true; return; }
+  if (!VAULT) { lockMsg('NO VAULT YET — SET AN ACCESS CODE WITH PORTAL-ADMIN.HTML.', true); $('#unlockBtn').disabled = true; return; }
+  if (!(await tryRemembered())) $('#pw').focus();
+})();
+</script>
+</body>
+</html>
