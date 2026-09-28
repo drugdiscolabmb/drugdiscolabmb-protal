@@ -7,10 +7,10 @@
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
 <meta name="googlebot" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
-<meta name="description" content="Lab members only.">
+<meta name="description" content="Drug Disco Lab tools portal.">
 <meta name="theme-color" content="#0a0914">
 <meta property="og:title" content="Lab Portal · Drug Disco Lab">
-<meta property="og:description" content="Lab members only.">
+<meta property="og:description" content="Drug Disco Lab tools portal.">
 <link rel="icon" type="image/png" href="favicon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -46,6 +46,8 @@ canvas{image-rendering:pixelated;image-rendering:crisp-edges}
 .hud .blip{width:6px;height:6px;flex:none;background:var(--mint);animation:blink 1s steps(1) infinite}
 .hud .right{margin-left:auto;color:var(--mint);white-space:nowrap}
 .hud .sep{color:var(--dim)}
+.hud .right.alert{color:var(--peach);animation:alert .9s steps(1) infinite}
+@keyframes alert{50%{opacity:.35}}
 
 /* Hero */
 .hero{display:flex;align-items:center;gap:22px;margin:26px 3px 22px}
@@ -102,28 +104,74 @@ footer b{font-weight:400;color:var(--mute)}
 #toast.on{transform:translate(-50%,0);visibility:visible;transition:transform .15s steps(3)}
 #toast a{color:var(--mint)}
 
-/* Lock screen */
-body.locked .wrap{display:none}
-#lock{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:16px}
-body.locked #lock{display:flex}
-.lock-box{width:100%;max-width:440px;padding:26px 24px 22px;background:rgba(22,18,31,.92);text-align:center}
-#lockPortal{width:96px;height:96px;display:block;margin:0 auto 18px}
-.lock-box h2{margin:0 0 12px;font:clamp(15px,4vw,20px)/1.4 var(--head);color:var(--ink);text-shadow:3px 3px 0 #3b2f7a}
-.lock-sub{margin:0 0 20px;font-size:17px;color:var(--mute)}
-.lock-box form{display:flex;flex-direction:column;gap:14px}
-.lock-box .search{margin:0}
-.lock-box .search input{font:16px var(--head);letter-spacing:.15em}
-.remember{display:flex;align-items:center;justify-content:center;gap:10px;font:8px var(--head);color:var(--mute);cursor:pointer}
+[hidden]{display:none!important}
+/* Zones */
+.zone{margin:0 0 30px}
+.zone-head{display:flex;align-items:center;flex-wrap:wrap;gap:8px 14px;margin:0 3px 16px;font:10px/1.6 var(--head);letter-spacing:.08em}
+.zone-tag.open{color:var(--mint)} .zone-tag.crew{color:var(--pink)}
+.zone-sub{font:8px/1.6 var(--head);color:var(--dim)}
+.zone-rule{flex:1 1 40px;height:3px;background:linear-gradient(90deg,var(--line) 50%,transparent 0) left/12px 3px repeat-x}
+
+/* Hub: the two main portals */
+.mains{display:grid;grid-template-columns:1fr 1fr;gap:34px;margin:6px 3px 8px}
+.mains.solo{grid-template-columns:minmax(0,560px);justify-content:center}
+.mp{--c:var(--mint);--sh:#1d5543;position:relative;display:flex;flex-direction:column;align-items:center;padding:26px 22px 26px;
+  background:radial-gradient(ellipse at 50% 30%,rgba(255,255,255,.05),transparent 60%),rgba(22,18,31,.78);
+  color:inherit;border:0;cursor:pointer;font:inherit;text-align:center;transition:transform .1s steps(2)}
+.mp::before,.mp::after{content:'';position:absolute;width:22px;height:22px;pointer-events:none}
+.mp::before{top:10px;left:10px;border-top:3px solid var(--c);border-left:3px solid var(--c);animation:cyc 1.8s steps(1) infinite}
+.mp::after{right:10px;bottom:10px;border-right:3px solid var(--c);border-bottom:3px solid var(--c);animation:cyc 1.8s steps(1) infinite -.9s}
+@keyframes cyc{0%{border-color:var(--k1)}33%{border-color:var(--k2)}66%{border-color:var(--k3)}}
+@keyframes bcyc{0%{--bc:var(--k1)}33%{--bc:var(--k2)}66%{--bc:var(--k3)}}
+.mp:hover,.mp:focus-visible{--bc:var(--c);animation:bcyc .9s steps(1) infinite;transform:translate(-4px,-4px);filter:drop-shadow(8px 8px 0 rgba(0,0,0,.75));outline:none}
+.mp:active{transform:none;filter:none}
+.mp-key{position:absolute;top:14px;right:16px;font:9px var(--head);color:var(--ink);background:var(--panel2);padding:5px 7px}
+.mp-art{position:relative;display:block;width:288px;height:288px;max-width:100%}
+.mp-art canvas{position:absolute;inset:0;width:100%;height:100%}
+.mp-lock{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1;filter:drop-shadow(3px 3px 0 rgba(0,0,0,.6))}
+.mp-lock canvas{position:static}
+.mp-tag{margin:14px 0 8px;font:9px var(--head);letter-spacing:.14em;color:var(--c)}
+.mp-title{font:clamp(17px,2.5vw,24px)/1.35 var(--head);color:var(--ink);text-shadow:2px 2px 0 var(--t1),4px 4px 0 var(--t2),6px 6px 0 var(--t3),8px 8px 0 rgba(0,0,0,.45)}
+.mp-tag b{font-weight:400} .mp-tag b:nth-child(3n+1){color:var(--k1)} .mp-tag b:nth-child(3n+2){color:var(--k2)} .mp-tag b:nth-child(3n){color:var(--k3)}
+.mp-sub{max-width:34ch;margin:12px 0 16px;font-size:17px;line-height:1.35;color:var(--mute)}
+.mp-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.chip{padding:6px 8px;font:8px var(--head);letter-spacing:.06em;color:var(--mute);background:var(--panel2)}
+.chip.hot{color:#120f1c;background:var(--c)}
+.mp-go{margin-top:22px;padding:13px 20px;font:12px var(--head);color:#120f1c;background:linear-gradient(90deg,var(--k1) 0 33.3%,var(--k2) 0 66.6%,var(--k3) 0);box-shadow:inset -3px -3px 0 rgba(0,0,0,.25)}
+.mp:hover .mp-go,.mp:focus-visible .mp-go{animation:nudge .4s steps(2) infinite}
+.mp.sealed .mp-go{background:var(--panel2);color:var(--c);box-shadow:0 0 0 3px var(--c)}
+
+/* Background fleet: ships crossing the sky behind the page */
+#fleet{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+/* Sector view */
+.sector-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px 16px;margin:0 3px 18px}
+.back{border:0;cursor:pointer;font:10px var(--head);padding:10px 12px;color:var(--ink);background:var(--panel2);box-shadow:inset -3px -3px 0 rgba(0,0,0,.3)}
+.back:hover,.back:focus-visible{background:var(--line);outline:none}
+.sector-title{font:clamp(12px,2vw,15px)/1.5 var(--head);letter-spacing:.06em}
+.sector-title.open{color:var(--mint)} .sector-title.crew{color:var(--pink)}
+
+/* Access-code dialog */
+.dlg{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(5,4,10,.72)}
+.dlg-box{position:relative;width:100%;max-width:460px;padding:26px 24px 20px;background:var(--panel);--bc:var(--pink);text-align:center}
+.dlg-box h2{margin:0 0 10px;font:clamp(14px,3.6vw,18px)/1.45 var(--head);color:var(--ink);text-shadow:3px 3px 0 #6e2a47}
+.dlg-x{position:absolute;top:10px;right:10px;border:0;cursor:pointer;font:10px var(--head);padding:7px 8px;color:var(--mute);background:var(--panel2)}
+.dlg-x:hover{color:var(--ink)}
+.lock-sub{margin:0 0 18px;font-size:17px;color:var(--mute)}
+.dlg form{display:flex;flex-direction:column;align-items:center;gap:14px}
+.dlg .search{align-self:stretch;margin:0}
+.dlg .search input{font:15px var(--head);letter-spacing:.15em}
+.remember{display:flex;align-items:center;gap:10px;font:8px var(--head);color:var(--mute);cursor:pointer}
 .remember input{appearance:none;width:14px;height:14px;margin:0;background:var(--panel2);box-shadow:0 0 0 3px var(--line);cursor:pointer}
 .remember input:checked{background:var(--mint)}
-.unlock{align-self:center;border:0;cursor:pointer;font:11px var(--head);padding:11px 16px;background:var(--lav);color:#120f1c;box-shadow:inset -3px -3px 0 rgba(0,0,0,.25)}
+.unlock{border:0;cursor:pointer;font:11px var(--head);padding:11px 16px;background:var(--pink);color:#120f1c;box-shadow:inset -3px -3px 0 rgba(0,0,0,.25)}
 .unlock:hover,.unlock:focus-visible{background:var(--mint);outline:none}
 .unlock:disabled{background:var(--panel2);color:var(--mute);cursor:wait}
-.lock-msg{min-height:1.8em;margin:14px 0 0;font:9px/1.8 var(--head);color:var(--mute)}
+.lock-msg{min-height:1.8em;margin:12px 0 0;font:9px/1.8 var(--head);color:var(--mute)}
 .lock-msg.bad{color:#ff8a6a}
 @keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 .shake{animation:shake .3s steps(4)}
-.lockbtn{background:none;border:0;padding:0;cursor:pointer;font:inherit;letter-spacing:inherit;color:var(--mute)}
+.lockbtn{background:none;border:0;padding:0;cursor:pointer;font:8px var(--head);letter-spacing:.08em;color:var(--mute)}
 .lockbtn:hover,.lockbtn:focus-visible{color:var(--pink);outline:none}
 
 @media (max-width:600px){
@@ -138,20 +186,114 @@ body.locked #lock{display:flex}
   .grid{grid-template-columns:1fr;gap:20px}
   .hole{width:120px;height:120px}
 }
+@media (max-width:760px){
+  .mains{grid-template-columns:1fr;gap:26px}
+  .mp{padding:22px 16px}
+  .mp-art{width:192px;height:192px}
+}
 @media (hover:none){.key,.keys-hint,kbd{display:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
-<body class="locked">
+<body>
 <canvas id="sky" aria-hidden="true"></canvas>
 <div class="deco" aria-hidden="true"><canvas id="giant" width="80" height="80"></canvas></div>
+<canvas id="fleet" aria-hidden="true"></canvas>
 
-<div id="lock" role="dialog" aria-labelledby="lockTitle">
-  <div class="lock-box pf" id="lockBox">
-    <canvas id="lockPortal" width="36" height="36" aria-hidden="true"></canvas>
-    <p class="kicker" id="lockLab"></p>
-    <h2 id="lockTitle">RESTRICTED SECTOR</h2>
-    <p class="lock-sub">Lab members only. Enter the access code to open the portal.</p>
+<main class="wrap">
+  <div class="hud pf">
+    <span class="blip"></span>
+    <span>PORTAL STATION <span id="station"></span></span>
+    <span class="sep hide-s">·</span>
+    <span id="stardate" class="hide-s"></span>
+    <span class="right" id="hudStatus">SYSTEMS ONLINE</span>
+  </div>
+
+  <header class="hero">
+    <canvas id="portal" width="36" height="36" aria-hidden="true"></canvas>
+    <div>
+      <p class="kicker" id="labname"></p>
+      <h1>LAB PORTAL</h1>
+      <p class="sub" id="heroSub">Choose a sector and jump through its portal.</p>
+    </div>
+  </header>
+
+  <!-- ============ HUB: the two main portals ============ -->
+  <section id="hub" aria-label="Choose a sector">
+    <div class="mains">
+      <button class="mp pf" id="mpOpen" type="button" style="--c:var(--mint);--k1:#a6efcd;--k2:#9fd6ff;--k3:#c8b4ff;--t1:#4fa678;--t2:#4d98d4;--t3:#8672df">
+        <span class="mp-key">1</span>
+        <span class="mp-art"><canvas id="mpOpenC" width="96" height="96" aria-hidden="true"></canvas></span>
+        <span class="mp-tag"><b>S</b><b>E</b><b>C</b><b>T</b><b>O</b><b>R</b> <b>A</b></span>
+        <span class="mp-title">OPEN SECTOR</span>
+        <span class="mp-sub">Lab tools anyone can use. No access code needed.</span>
+        <span class="mp-meta"><span class="chip hot">● OPEN</span><span class="chip" id="mpOpenCount"></span></span>
+        <span class="mp-go">ENTER ▶</span>
+      </button>
+      <button class="mp pf sealed" id="mpCrew" type="button" style="--c:var(--pink);--k1:#ffadc8;--k2:#ffcf9e;--k3:#fff0a0;--t1:#d7638d;--t2:#df894d;--t3:#b8923a">
+        <span class="mp-key">2</span>
+        <span class="mp-art"><canvas id="mpCrewC" width="96" height="96" aria-hidden="true"></canvas><span class="mp-lock" id="mpLock"></span></span>
+        <span class="mp-tag"><b>S</b><b>E</b><b>C</b><b>T</b><b>O</b><b>R</b> <b>B</b></span>
+        <span class="mp-title">RESTRICTED SECTOR</span>
+        <span class="mp-sub">Lab crew only. Every destination, including private lab tools.</span>
+        <span class="mp-meta"><span class="chip hot" id="mpCrewState">■ LOCKED</span><span class="chip" id="mpCrewCount">ACCESS CODE REQUIRED</span></span>
+        <span class="mp-go" id="mpCrewGo">UNLOCK ▶</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ SECTOR VIEW (open or restricted) ============ -->
+  <section id="sector" hidden>
+    <div class="sector-bar">
+      <button class="back" id="backBtn" type="button">◀ HUB</button>
+      <span class="sector-title open" id="sectorTitle">◆ OPEN SECTOR</span>
+      <span class="zone-rule"></span>
+      <button class="lockbtn" id="lockBtn" type="button" hidden>⏏ LOCK</button>
+    </div>
+
+    <label class="search pf">
+      <span class="prompt" aria-hidden="true">&gt;</span>
+      <input id="q" type="search" placeholder="Search destinations…" autocomplete="off" aria-label="Search apps">
+      <kbd>/</kbd>
+    </label>
+
+    <div class="zone" id="crewBlock">
+      <div class="zone-head">
+        <span class="zone-tag crew">◆ CREW ONLY</span>
+        <span class="zone-sub">RESTRICTED · LAB MEMBERS</span>
+        <span class="zone-rule"></span>
+      </div>
+      <div class="grid" id="gridCrew"></div>
+    </div>
+
+    <div class="zone" id="openBlock">
+      <div class="zone-head">
+        <span class="zone-tag open">◆ OPEN TOOLS</span>
+        <span class="zone-sub">FREE TO DOCK · FOR EVERYONE</span>
+        <span class="zone-rule"></span>
+      </div>
+      <div class="grid" id="gridOpen"></div>
+    </div>
+
+    <p class="empty" id="empty" hidden>NO DESTINATION FOUND.<br>TRY ANOTHER COORDINATE.</p>
+  </section>
+
+  <footer>
+    <span id="note"></span>
+    <span class="keys-hint" id="keysHint"><b>1</b> OPEN &nbsp;·&nbsp; <b>2</b> RESTRICTED</span>
+  </footer>
+</main>
+
+<div id="warp" aria-live="polite"><canvas id="warpc"></canvas><div class="warp-txt"><span id="warpTop" style="color:inherit">ENTERING WORMHOLE</span><br>▶ <span id="warpDest"></span></div></div>
+<div id="toast" class="pf" role="status"></div>
+
+<!-- Access-code dialog for the restricted sector -->
+<div class="dlg" id="gateDlg" role="dialog" aria-modal="true" aria-labelledby="lockTitle" hidden>
+  <div class="dlg-box pf" id="gateBox">
+    <button class="dlg-x" id="gateClose" type="button" aria-label="Close">✕</button>
+    <p class="kicker">RESTRICTED SECTOR</p>
+    <h2 id="lockTitle">ACCESS CODE REQUIRED</h2>
+    <p class="lock-sub">Lab members only. Enter the lab access code to jump in.</p>
     <form id="lockForm" autocomplete="on">
       <input type="text" name="username" value="lab-portal" autocomplete="username" hidden>
       <label class="search pf">
@@ -165,46 +307,10 @@ body.locked #lock{display:flex}
   </div>
 </div>
 
-<main class="wrap">
-  <div class="hud pf">
-    <span class="blip"></span>
-    <span>PORTAL STATION <span id="station"></span></span>
-    <span class="sep hide-s">·</span>
-    <span id="stardate" class="hide-s"></span>
-    <span class="right">SYSTEMS ONLINE</span>
-  </div>
-
-  <header class="hero">
-    <canvas id="portal" width="36" height="36" aria-hidden="true"></canvas>
-    <div>
-      <p class="kicker" id="labname"></p>
-      <h1>LAB PORTAL</h1>
-      <p class="sub">Choose a destination and hit <b>WARP</b> to launch the app.</p>
-    </div>
-  </header>
-
-  <label class="search pf">
-    <span class="prompt" aria-hidden="true">&gt;</span>
-    <input id="q" type="search" placeholder="Search destinations…" autocomplete="off" aria-label="Search apps">
-    <kbd>/</kbd>
-  </label>
-
-  <section class="grid" id="grid" aria-label="Lab apps"></section>
-  <p class="empty" id="empty" hidden>NO DESTINATION FOUND.<br>TRY ANOTHER COORDINATE.</p>
-
-  <footer>
-    <span id="note"></span>
-    <span><span class="keys-hint"><b>1–9</b> WARP &nbsp;·&nbsp; <b>/</b> SEARCH &nbsp;·&nbsp; </span><button class="lockbtn" id="lockBtn" type="button">⏏ LOCK</button></span>
-  </footer>
-</main>
-
-<div id="warp" aria-live="polite"><canvas id="warpc"></canvas><div class="warp-txt"><span id="warpTop" style="color:inherit">ENTERING WORMHOLE</span><br>▶ <span id="warpDest"></span></div></div>
-<div id="toast" class="pf" role="status"></div>
-
 <script>
 /* ================================================================
-   Page settings. The app list itself lives encrypted in VAULT —
-   edit apps and the access code with portal-admin.html.
+   Page settings. Apps are NOT edited here — use portal-admin.html
+   or tools/vault_tool.py, which fill in the two blocks below.
    ================================================================ */
 const LAB = {
   name: "DRUG DISCO LAB",
@@ -213,10 +319,12 @@ const LAB = {
   showUncharted: true            // the "more coming soon" card at the end
 };
 
-/* The app list is ENCRYPTED below. Do not edit VAULT by hand —
-   use portal-admin.html (kept on the lab PC, never uploaded). */
-const VAULT = "AnWBlwMvxqUKcOgrCPW/uA==.VMbEGpfF84yAme4A.hiVkK61MpcZjRrWoasoqdXA+fzYPQIWujJMFHfyiLS8GcN6PeJVqTwWyWjeZT/erGxqxZAcGg8vINjPv40K9x2lKJDzEt0pSQtHsOxqvDkKFgSQsygjx22IXqRxOKzaHMW1XL4CjHV52Ai9wKkT25pSF2RjImf6F4BbzxkJkIdkK3hPeV6zg4QvebhBb+f705gOVX9UjlOcUDteEeCeco84FrniQHsg9/GsLX+Ir6lRMr0l2VAVduSq8/woAqiuLrIHxo1G/xy9qEEzl3emVqOPFZMBWfFDqgnp/zVOx2KMbIdn/ELVIVTaNLFckfOqtPo9/ucRLKIMZ8XTqvilRm1WsCV5eFnwEJMP0iz0tjccG0pPSsBpDqZVFeg6ThzUb7WJ3Ua+JzEMgYUKjxayNnqNEUmUuFhouuFkW7hvB5Tx2Rjxj3NEzJ/O4PNpur83BbE9D59TKk0YDILdHmQ8jDuphV9tsaiVAyh4tAavclLOInUfp7SWmc0KsyfXp9f3OdBcuPhZgxbQxpbh/4vk4fYXSz6/ktltkn44hNHjhASYHrR/um0t0BzOr1TmQLiXNQnPJPRAfLVQaGb/bqyE6TzlgMBIWLB6H9uljjUTbvoKKHLQAUwRz8DqW6FkkxQ9rDp1ty0Y4xji/4cRNbrLiUMFNSi8NiicVk3quyNfYk5bdFMjVJch9NXfhDmfUSWOELtjNep5id3eFjm+DgGiACc0o7/sefA2M6SXxARVlEtSbhrNTpRlEdOpEatO6Kex2Ep9EG1dqS4T+Ih6dHqQvMW98J6uMXlT2xsBU2ux40qKkELAfCYt29zQrSUOwBmY/jqRxHyHxMSqlnhai387T3NH48fKHDFEK8lF/TXQgs1PDYVrhvNfGvbxXAOtP6DnrmlwavBMho0l54Biyvcl0TYj35Yk3qjX0oaKvM2IwyYOYGJrq8DDKjs53072jrVj5ovnKMGz7EhHuDnUKSfTkxtyO1loed5JO/i10xEqF7S60wGCnvLhnl6Fa7YBDWkgyizbyZop2KO9MLI/wYtpSw0AtdfRjhpWFXLhcA7mhB8o9wt3hA9F006hMoEQOZRLJWLCdhB6S0YxSyMj9AK29Nsh1W0kIBGLhdYxUgeZc3OkKzSbgj2N7iUGc7UFUsvxAzt4stvcWoYqwTr5vH91OxkzrrdPBsQtZCfdzf0fkgTt6cJ1hIL7M9BUNue3DYfaips2x6Bel49gafKkmVxWCd29EwBwVHczFboeyiVqCKb+W3ucmcuJHcC8XBueqkFz0vJ7C4Xk4ICsOndW78UcbwHQGAGOYgDQTatOAYbm9Aln9H5xOCk31036zmgk3GeVRIrlrZz6V+joIVf4GUYen1jLBKZsJ4vLNJBTxec6VFMXQ++3TzMoggMofwcRRSqoEZAjevxooHY1HThZ1db8PElcXiB4SfW5bu8Kvuv5BKc/zTA2JXcr01n6x4c+M+tlWy7L9twxxoCg2aV8ng0sCQMxP6aBRR+1wS9jPLTz3e2sv8dSo54i17LfkBMw9xABzqgpM986CeNQLKtOhG0bBm8ZJXSkngNTllYWzl7tdFG16sOjLJReYxLOcXnjlH8vDoB7s3huaarg0PhTQjuNSJMxO0pZyT2qLHFByiv34Gr8TzoMNkIErUhQxjQuVQzSGDIjiv3VrPoZ+uNM9ND6Hy2MuVGlkaKk9ZoV8/fEh9H/OqdMuiA3LAuK7xnTBNYVd8C3fbjlqK+o0dkDuwrMPbBDbhWVBaIgUPjMCbrDJjZDldss61YQdZeTrbNORC9wGsCC3BYD5+JwsY3GccDwARCiZ7hX8xbKVDZl1LQjSo/8Kb2UdQ0/UmBfKbCl+Iw5qaxqPbQe8jOw5IhjWt6nvKcnvcM4/5H8wiXs++e+dC3h/CdHgYIRXEK1O/CHu2FM3glAXqyb/UV0VcdNJUm5BFSwfdbY6m9yuWkV4B3BgX/K1sMKM/VaGhhQsi6uvBZ2CgnGuSYSdNlqNHczQ/yxx0fp4K0WezSMY1OoI7tYIwrlbmKDsFlwFO1oqeIuTd4iWeYOgZQQX+VHrQeRPQmM2FgdaKA9AuvtPrZsK6rPmw2FtbkhIFdGCMXZfLIlH88FoTn28T+S0EJa6KG2L7H3YtRje2LRf";
-let APPS = [];
+/* OPEN SECTOR apps — public, readable by anyone (written by the build tools). */
+const PUBLIC_APPS = /*PUBLIC-APPS-START*/[{"name":"PC Booking","desc":"Reserve lab workstations PC-01 to PC-04 by date and time slot.","url":"https://script.google.com/macros/s/AKfycbwmzmFTpVRyLxVaUngHIcRnPT_1znEp_YFnWqPD0aJaKIrSQIXAam8RNAKQzLI8-Idg/exec","icon":"monitor","color":"mint","status":"online","keywords":"pc computer gpu book booking reserve workstation rtx gromacs"},{"name":"ICM Progress Tracker","desc":"Follow the progress of ICM work across the lab.","url":"https://script.google.com/macros/s/AKfycbzCLz4aXs_GmVyejYfnpezhncPExmdPqfFF9fAS1NPBBTrVPHd44kSXW30DG8pJbfElrQ/exec","icon":"molecule","color":"lav","status":"online","keywords":"icm molsoft docking progress tracker assignment task"},{"name":"Q1obsessed","desc":"Search any journal and instantly see its real percentile and rank in every field it belongs to.","url":"https://imeewan.github.io/q1obsessed/classic/","icon":"search","color":"pink","status":"online","keywords":"journal quartile q1 q2 percentile rank impact scimago publish paper"}]/*PUBLIC-APPS-END*/;
+
+/* RESTRICTED SECTOR apps — AES-256-GCM encrypted, unlocked by the access code.
+   Empty string = no restricted sector. Never edit by hand. */
+const VAULT = "gJ+cvGqP96j6nlg9FO2APQ==.7uDKt3sSdzhEBMtK.aGuDaJyEm3dfX16VU6wl6b5+g9mgN70w3PQ4pjHZACszn8tdZ9+wRhTm5f2NlSHE9EnTQ1/wdHPKNoomqOJZ3IC+orOMpdD1sQTV2cgf9pDfUpIRttYj3qTokGDJHRpULl4ey9w1IRGAM5wQMAFVSmYle6iQgel3SQBzayb/ldnOZZslVKm5CadTWbYVEengV71uT6/cfhgKvSFe1IB7+WIlAgBisrcK4QWuQQRJpsi1Dd0osL0/m8nScGCWedajq+53CF+TQu+1lujrX7ZrwwwKDXhFJaBBGHSXEI4kVp49WUnsJ+4uOVF0VLn7LbAazekri/kIoNfhnm3UCl9RNgWC6I5A5G3DDdNOnYL1HZGy5MNUx6kFQG18Jc8oFW6KvlrXwVxnBsBHUXohB/oxpDZ2j0pLslGVjMI3bOxvvW6s+VOMbSVpvUeq/qySxOYGQwjfzo4waSPhJ8TTHpREIop5XHmNDSMIBpfCY1j8vFrignP3I+Frpp8Vq/VVD0KTLHqFPtjVvz2UcZvEz7gaSFRqbgUA+sLemCzPFPZOjS5AbuvXT+/qi+a+jx0kZKJSxoCCY74z960PGyvvFyNVGRvQTVMnChI+NgYP9YE+ZhvzSaxnJyXY0epBDgzg6Qk2SmXNQ2G9IUi5vX8GfHlU4764n9k91atYERwwrO6RfwcbtWaAEsbfoZocJpMnNBFmjKSqNnrHoxt7duq/n3pQ1/9ezhkvAsrz4Sfqw0kwrZmT807GzS9enuPxXnsxpNyCgCKa7d3xSyN4UqMFiWZkM/Wp9vftn5YtX1FoLM87+nnXTFsl93bbuCHro7Sf9NmBRuIS";
 /* ================================================================ */
 
 const $ = s => document.querySelector(s);
@@ -246,6 +354,7 @@ const ICONS = {
   book:["XXXX..XXXX","X...XX...X","X.XX.X.XXX","X...XX...X","X.XX.X.XXX","X...XX...X","XXXX.XXXXX","....XX...."],
   server:["XXXXXXXXXX","X........X","X.XX...X.X","X........X","XXXXXXXXXX","X........X","X.XX...X.X","X........X","XXXXXXXXXX"],
   search:["..XXXX....",".X....X...","X..XX..X..","X.X....X..","X......X..",".X....X...","..XXXXXX..","......XXX.",".......XXX","........XX"],
+  lock:["..XXXX..",".XX..XX.",".X....X.",".X....X.","XXXXXXXX","XXX..XXX","XXX..XXX","XXXXXXXX"],
   unknown:["..XXXX..",".XX..XX.",".....XX.","....XX..","...XX...","...XX...","........","...XX..."],
 };
 
@@ -308,16 +417,19 @@ const frac = v => v - Math.floor(v);
 const hash = n => frac(Math.sin(n * 127.1 + 11.7) * 43758.5453);
 function renderWormhole(img, W, H, rgb, o) {
   const d = img.data, cols = rgb.concat([WHITE]);
+  const PS = o.pals ? o.pals.map(p => p.concat([WHITE])) : null, NP = PS ? PS.length : 1;   // multi-hue mode
+  const pick = i => PS ? PS[((i % NP) + NP) % NP] : cols;
   const R = o.R, Rn = o.R || o.Rn, rim = o.R ? 3.5 : 0;
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const k = (y*W + x) * 4;
     const dx = x - o.cx, dy = y - o.cy, dist = Math.hypot(dx, dy);
-    let col = -1;
+    let col = -1, set = cols;
     if (R && dist > R + rim) { d[k+3] = 0; continue; }
     if (R && dist > R) {                       // event-horizon rim
       const a = Math.atan2(dy, dx) / (Math.PI*2);
       const e = (dist - R) / rim, lit = frac(a*6 - o.spin*3) < .5;
       col = e < .35 ? 4 : (e < .7 ? (lit ? 3 : 2) : (BAYER[y&3][x&3] < -.1 ? 1 : -1));
+      if (PS) set = pick(Math.floor(frac(a + o.spin * 2) * NP * 2));      // colour bands chase around the rim
     } else {                                   // tunnel interior
       const rn = dist / Rn, bend = (1 - rn) * (1 - rn);
       const bx = dx - o.bx * bend, by = dy - o.by * bend;
@@ -328,6 +440,7 @@ function renderWormhole(img, W, H, rgb, o) {
       const arm = frac(u * o.arms + v * .55), ring = frac(v * .8);
       let lum = (1 - Math.min(rr,1)) ** 1.6 * 2.9 + .2 + (arm < .5 ? .45 : -.2) + (ring < .14 ? 1 : 0) + BAYER[y&3][x&3] * .8;
       col = Math.max(0, Math.min(4, Math.round(lum)));
+      if (PS) set = pick(Math.floor(v * .8 + (arm < .5 ? 0 : .5)));          // every ring a new hue
       if (o.streak) {                          // thin 1px hyperspace streaks
         const la = a * o.lanes, lane = Math.floor(la), off = Math.abs(frac(la) - .5) * Math.PI * 2 * bd / o.lanes;
         if (off < .6 && rr > .2 && frac(v * .35 + hash(lane + o.seed)) < .06 * o.streak) col = 5;
@@ -335,7 +448,7 @@ function renderWormhole(img, W, H, rgb, o) {
       if (rr < .09) col = 5;
     }
     if (col < 0) { d[k+3] = 0; continue; }
-    const p = cols[col]; d[k] = p[0]; d[k+1] = p[1]; d[k+2] = p[2]; d[k+3] = 255;
+    const p = set[col]; d[k] = p[0]; d[k+1] = p[1]; d[k+2] = p[2]; d[k+3] = 255;
   }
   // matter spiralling in from outside the rim
   if (o.R && o.inflow) for (let i = 0; i < o.inflow; i++) {
@@ -343,20 +456,20 @@ function renderWormhole(img, W, H, rgb, o) {
     const ang = i * 2.399 + f * 4 + o.spin * 6;
     const px = Math.round(o.cx + Math.cos(ang) * rad), py = Math.round(o.cy + Math.sin(ang) * rad);
     if (px < 0 || py < 0 || px >= W || py >= H) continue;
-    const k = (py*W + px) * 4, p = cols[f > .6 ? 5 : 3];
+    const k = (py*W + px) * 4, p = pick(i)[f > .6 ? 5 : 3];
     d[k] = p[0]; d[k+1] = p[1]; d[k+2] = p[2]; d[k+3] = 255;
   }
 }
 
 /* ---------- Build cards ---------- */
-const grid = $('#grid'), cards = [], holes = [];
+const grids = { open: $('#gridOpen'), crew: $('#gridCrew') }, cards = [], holes = [];
 $('#labname').textContent = LAB.name;
 $('#station').textContent = LAB.station;
 $('#note').textContent = '◆ ' + LAB.note;
 
 const STATUS = { online:'ONLINE', beta:'BETA', repair:'REPAIR', soon:'SOON', nosignal:'NO SIGNAL' };
 
-function makeCard(app, i, uncharted) {
+function makeCard(app, i, uncharted, zone = 'open', vi = i) {
   const pal = PAL[uncharted ? 'void' : (app.color in PAL ? app.color : 'mint')];
   const el = document.createElement(uncharted ? 'div' : 'a');
   el.className = 'dest pf' + (uncharted ? ' uncharted' : '');
@@ -367,16 +480,16 @@ function makeCard(app, i, uncharted) {
   const top = document.createElement('div'); top.className = 'd-top';
   const l = document.createElement('span'); l.className = 'l';
   if (!uncharted) { const k = document.createElement('span'); k.className = 'key'; l.append(k); el._key = k; }
-  l.append(document.createTextNode(uncharted ? 'SECTOR ??' : 'SECTOR ' + String(i + 1).padStart(2, '0')));
+  l.append(document.createTextNode(uncharted ? 'SECTOR ??' : (zone === 'crew' ? 'CREW ' : 'SECTOR ') + String(i + 1).padStart(2, '0')));
   const s = document.createElement('span'); s.className = 'status st-' + st;
   s.append(document.createElement('i'), document.createTextNode(STATUS[st]));
   top.append(l, s);
 
   const cv = document.createElement('canvas'); cv.className = 'hole'; cv.width = cv.height = 48; cv.setAttribute('aria-hidden', 'true');
   const hctx = cv.getContext('2d');
-  const hole = { ctx: hctx, img: hctx.createImageData(48, 48), rgb: pal.rgb, base: uncharted ? .15 : .55 + (i % 3) * .1,
-    boost: 0, target: 0, dim: uncharted, ph: i * 1.9,
-    o: { cx: 23.5, cy: 23.5, R: 15, v: i * .37, spin: i * .21, bx: 0, by: 0, arms: 3 + i % 3, lanes: 22, seed: i * 7,
+  const hole = { ctx: hctx, img: hctx.createImageData(48, 48), rgb: pal.rgb, base: uncharted ? .15 : .55 + (vi % 3) * .1,
+    boost: 0, target: 0, dim: uncharted, ph: vi * 1.9, card: true,
+    o: { cx: 23.5, cy: 23.5, R: 15, v: vi * .37, spin: vi * .21, bx: 0, by: 0, arms: 3 + vi % 3, lanes: 22, seed: vi * 7,
          streak: uncharted ? 0 : 1, inflow: uncharted ? 0 : 9 } };
   holes.push(hole);
   if (!uncharted) {
@@ -393,7 +506,7 @@ function makeCard(app, i, uncharted) {
 
   const f = document.createElement('div'); f.className = 'd-foot';
   const co = document.createElement('span'); co.className = 'coord';
-  co.textContent = uncharted ? 'X:??? Y:???' : `X:${String(137 + i*211 % 900).padStart(3,'0')} Y:${String(42 + i*97 % 900).padStart(3,'0')}`;
+  co.textContent = uncharted ? 'X:??? Y:???' : `X:${String(137 + vi*211 % 900).padStart(3,'0')} Y:${String(42 + vi*97 % 900).padStart(3,'0')}`;
   const go = document.createElement('span'); go.className = 'go';
   go.innerHTML = uncharted ? 'SOON' : 'WARP <span class="ar">▶</span>';
   f.append(co, go);
@@ -405,20 +518,435 @@ function makeCard(app, i, uncharted) {
       e.preventDefault(); if (el._hole) el._hole.target = 4; warpTo(app, pal);
     });
   }
-  grid.append(el);
-  return { el, app, text: uncharted ? '' : (app.name + ' ' + app.desc + ' ' + (app.keywords || '')).toLowerCase(), uncharted };
+  grids[zone].append(el);
+  return { el, app, zone, text: uncharted ? '' : (app.name + ' ' + app.desc + ' ' + (app.keywords || '')).toLowerCase(), uncharted };
 }
-function launch(apps) {
-  APPS = apps;
-  APPS.forEach((a, i) => cards.push(makeCard(a, i, false)));
-  if (LAB.showUncharted) cards.push(makeCard({}, APPS.length, true));
-  filter();
-  document.body.classList.remove('locked');
-}
-
-/* ---------- Search ---------- */
+/* ---------- Views: hub  ⇄  open sector / restricted sector ---------- */
+const hasCrew = !!VAULT;
+let crewApps = null, view = 'hub';
 const q = $('#q');
 let visible = [];
+
+function clearCards() {
+  cards.length = 0;
+  for (let i = holes.length - 1; i >= 0; i--) if (holes[i].card) holes.splice(i, 1);
+  grids.open.innerHTML = ''; grids.crew.innerHTML = '';
+}
+function buildSector(kind) {
+  clearCards();
+  const crew = kind === 'crew' && crewApps ? crewApps : [];
+  crew.forEach((a, i) => cards.push(makeCard(a, i, false, 'crew', i + 1)));
+  PUBLIC_APPS.forEach((a, i) => cards.push(makeCard(a, i, false, 'open', crew.length + i + 1)));
+  if (kind === 'open' && LAB.showUncharted) cards.push(makeCard({}, PUBLIC_APPS.length, true, 'open'));
+  $('#sectorTitle').textContent = kind === 'crew' ? '◆ RESTRICTED SECTOR' : '◆ OPEN SECTOR';
+  $('#sectorTitle').className = 'sector-title ' + kind;
+  $('#lockBtn').hidden = kind !== 'crew';
+  q.value = ''; filter();
+}
+function setView(kind) {
+  if (kind === 'crew' && !crewApps) kind = 'hub';
+  view = kind;
+  for (const m of Object.values(mains)) m.target = 0;
+  $('#hub').hidden = kind !== 'hub';
+  $('#sector').hidden = kind === 'hub';
+  if (kind === 'hub') clearCards(); else buildSector(kind);
+  $('#heroSub').textContent = kind === 'hub' ? 'Choose a sector and jump through its portal.'
+    : kind === 'crew' ? 'Restricted sector: lab crew tools plus every open tool.' : 'Open sector: tools anyone can use.';
+  $('#keysHint').innerHTML = kind === 'hub' ? '<b>1</b> OPEN &nbsp;·&nbsp; <b>2</b> RESTRICTED'
+    : '<b>1–9</b> WARP &nbsp;·&nbsp; <b>/</b> SEARCH &nbsp;·&nbsp; <b>ESC</b> HUB';
+  scrollTo(0, 0);
+}
+function route() {
+  const h = location.hash.slice(1), k = h === 'open' ? 'open' : h === 'crew' ? 'crew' : 'hub';
+  if (k === 'crew' && !crewApps) { if (view !== 'hub') setView('hub'); if (hasCrew) openGate(); return; }
+  if (k !== view) setView(k);
+}
+addEventListener('hashchange', route);
+function enter(kind, top = 'JUMPING TO') {
+  if (warping) return;
+  if (kind === 'crew' && !crewApps) { openGate(); return; }
+  const go = () => { if (location.hash === '#' + kind) setView(kind); else location.hash = kind; };
+  if (mains[kind]) mains[kind].target = 4;
+  const warp = () => runWarp(kind === 'crew' ? PAL.pink : PAL.mint, top, kind === 'crew' ? 'RESTRICTED SECTOR' : 'OPEN SECTOR', go);
+  if (reduced) go();
+  else if (fleet.visible()) { warping = true; fleet.jump(warp); }
+  else warp();
+}
+function toHub() { if (location.hash) location.hash = ''; else setView('hub'); }
+$('#backBtn').onclick = toHub;
+
+/* ---------- The two main portals (96×96 px, drawn live) ---------- */
+const mains = {};
+function makeMain(kind, sel, pals) {
+  const cv = $(sel), ctx = cv.getContext('2d'), btn = cv.closest('button');
+  const P = pals.map(p => p.rgb);
+  const m = { kind, ctx, img: ctx.createImageData(96, 96), pals: P, rgb: P[0], boost: 0, target: 0,
+    o: { pals: P, cx: 47.5, cy: 47.5, R: 30, v: kind === 'crew' ? 2.1 : 0, spin: kind === 'crew' ? .5 : 0, bx: 0, by: 0,
+         arms: kind === 'crew' ? 3 : 4, lanes: 34, seed: kind === 'crew' ? 51 : 17, streak: 1, inflow: 26 } };
+  const on = () => { if (m.target < 2) m.target = 1; }, off = () => { if (m.target < 2) m.target = 0; };
+  btn.addEventListener('mouseenter', on); btn.addEventListener('mouseleave', off);
+  btn.addEventListener('focus', on); btn.addEventListener('blur', off);
+  btn.addEventListener('click', () => enter(kind));
+  mains[kind] = m;
+}
+makeMain('open', '#mpOpenC', [PAL.mint, PAL.sky, PAL.lav]);                 // cool trio
+makeMain('crew', '#mpCrewC', [PAL.pink, PAL.peach, PAL.butter, PAL.lav]);   // warm quartet
+$('#mpLock').append(iconCanvas('lock', '#ffadc8', 6));
+$('#mpOpenCount').textContent = `${PUBLIC_APPS.length} DESTINATION${PUBLIC_APPS.length === 1 ? '' : 'S'}`;
+if (!hasCrew) { $('#mpCrew').hidden = true; $('.mains').classList.add('solo'); }
+
+function updateCrewPortal() {
+  const open = !!crewApps;
+  $('#mpLock').hidden = open;
+  $('#mpCrew').classList.toggle('sealed', !open);
+  $('#mpCrewState').textContent = open ? '● UNLOCKED' : '■ LOCKED';
+  $('#mpCrewCount').textContent = open ? `${crewApps.length + PUBLIC_APPS.length} DESTINATIONS` : 'ACCESS CODE REQUIRED';
+  $('#mpCrewGo').textContent = open ? 'ENTER ▶' : 'UNLOCK ▶';
+}
+
+let lastMain = performance.now();
+function drawMains(t) {
+  const dt = Math.min(120, t - lastMain) / 1000; lastMain = t;
+  const T = t / 1000, S = 96, c = 47.5;
+  for (const k in mains) {
+    const m = mains[k], o = m.o, R = o.R, d = m.img.data, P = m.pals, NP = P.length;
+    const hue = i => P[((Math.floor(i) % NP) + NP) % NP];
+    if (m.ctx.canvas.closest('[hidden]')) continue;             // not on screen
+    const sealed = k === 'crew' && !crewApps;
+    m.boost += (m.target - m.boost) * Math.min(1, dt * 5);
+    const sp = (sealed ? .28 : .7) * (1 + m.boost * 2.4);
+    o.v += sp * dt * 1.6; o.spin += sp * dt * .05;
+    o.bx = Math.sin(T * .9 + (k === 'crew' ? 2 : 0)) * 7; o.by = Math.cos(T * .7) * 5;
+    o.streak = sealed ? .3 : 1 + m.boost * 2;
+    renderWormhole(m.img, S, S, m.rgb, o);
+    const put = (x, y, p, behind) => {
+      x = Math.round(x); y = Math.round(y); if (x < 0 || y < 0 || x >= S || y >= S) return;
+      const i = (y*S + x) * 4; if (behind && d[i+3]) return;
+      d[i] = p[0]; d[i+1] = p[1]; d[i+2] = p[2]; d[i+3] = 255;
+    };
+    // 1) dithered glow halo, pulsing around the ring
+    for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+      const dist = Math.hypot(x - c, y - c); if (dist < R + 4 || dist > R + 16) continue;
+      const f = 1 - (dist - R - 4) / 12, a = Math.atan2(y - c, x - c);
+      const thr = f * f * (.5 + .3 * Math.sin(T * 2.2 + a * 3)) * (1 + m.boost * .6);
+      if (BAYER[y&3][x&3] + .5 < thr) put(x, y, hue((a / (Math.PI * 2) + .5 + T * .07) * NP)[f > .62 ? 2 : 1], true);   // rainbow halo turns slowly
+    }
+    // 2) tilted orbit with three satellites (hidden when behind the portal)
+    const rx = R + 13, ry = (R + 13) * .3, ct = Math.cos(-.35), st = Math.sin(-.35);
+    const orbit = (a) => { const ex = Math.cos(a) * rx, ey = Math.sin(a) * ry; return [c + ex*ct - ey*st, c + ex*st + ey*ct, Math.sin(a) < 0]; };
+    for (let i = 0; i < 120; i += 2) {
+      const [x, y, back] = orbit(i / 120 * Math.PI * 2);
+      if (back && Math.hypot(x - c, y - c) < R + 3.5) continue;
+      put(x, y, hue(i / 20)[back ? 1 : 2], back);
+    }
+    for (let s2 = 0; s2 < 3; s2++) {
+      const [x, y, back] = orbit(T * (.8 + m.boost * 1.5) + s2 * 2.1);
+      if (back && Math.hypot(x - c, y - c) < R + 3.5) continue;
+      for (const [dx, dy] of [[0,0],[1,0],[0,1],[1,1]]) put(x + dx, y + dy, dx + dy ? hue(s2 + 1)[3] : WHITE);
+    }
+    // 3) studs spinning around the rim
+    for (let i = 0; i < 16; i++) {
+      const a = i / 16 * Math.PI * 2 + T * (.5 + m.boost);
+      put(c + Math.cos(a) * (R + 1.8), c + Math.sin(a) * (R + 1.8), i % 4 ? hue(i + T * 4)[4] : WHITE);
+    }
+    // 4) four pylons counter-rotating outside the rim
+    for (let i = 0; i < 4; i++) {
+      const a = i * Math.PI / 2 - T * .3, px = c + Math.cos(a) * (R + 8), py = c + Math.sin(a) * (R + 8);
+      for (const [dx, dy] of [[0,-2],[-1,-1],[0,-1],[1,-1],[-2,0],[-1,0],[0,0],[1,0],[2,0],[-1,1],[0,1],[1,1],[0,2]])
+        put(px + dx, py + dy, Math.abs(dx) + Math.abs(dy) < 2 ? WHITE : hue(i)[3]);
+    }
+    // 4b) twinkling 4-point sparkles that pop in and out around the portal
+    for (let i = 0; i < 7; i++) {
+      const cyc = T * .45 + i / 7, n = Math.floor(cyc), ph = frac(cyc);
+      const a = hash(n * 7 + i) * Math.PI * 2, r = R + 6 + hash(n * 13 + i) * 12;
+      const sx = c + Math.cos(a) * r, sy = c + Math.sin(a) * r, arm = ph < .5 ? Math.round(ph * 6) : Math.round((1 - ph) * 6);
+      const col = hue(i + n)[4];
+      put(sx, sy, WHITE);
+      for (let j = 1; j <= arm; j++) { const cc = j === arm ? col : WHITE; put(sx + j, sy, cc); put(sx - j, sy, cc); put(sx, sy + j, cc); put(sx, sy - j, cc); }
+    }
+    // 5) force field across a sealed portal
+    if (sealed) {
+      const off = Math.floor(T * 10) % 4;
+      for (let y = 0; y < S; y++) { if ((y + off) % 4) continue;
+        for (let x = 0; x < S; x++) if (Math.hypot(x - c, y - c) < R) {
+          const i = (y*S + x) * 4; d[i] = (d[i] + 255) >> 1; d[i+1] = (d[i+1] + 173) >> 1; d[i+2] = (d[i+2] + 200) >> 1;
+        } }
+    }
+    m.ctx.putImageData(m.img, 0, 0);
+  }
+}
+
+/* ---------- Background fleet: original pixel ships ----------
+   Six classes cross the sky behind the page, alone or in formation,
+   at different speeds and depths (far ships are dimmer and slower).
+   Capital ships run on their own timers (CAPITAL_EVERY, in seconds):
+   a battlecruiser about every 30 s and a titan about every 60 s, with the
+   titan arriving under escort. They set off an alert on the HUD.
+   Easter egg: type "titan" or "cruiser" anywhere to summon one.
+   Sprites: one letter per pixel. K outline · H/D/G hull shades · L edge
+   highlight · E engine block · C canopy glass · A/c neon accent · Y light. */
+const FLEET_BG = [10, 9, 20];
+const CAPITAL_EVERY = { battlecruiser: 30, titan: 60 };      // seconds between arrivals (±15% jitter)
+const FLEET_BASE = { K:[13,11,22], H:[48,44,70], D:[72,66,102], G:[110,104,150], L:[170,164,210], E:[30,27,44], C:[16,40,58], Y:[255,255,255] };
+const FLEET = {
+  interceptor: { accent:[255,110,170], speed:[55,75], depth:1,   flame:4, engines:[5,6,7,8], rows: [
+      "KK........................",
+      "KAK.......................",
+      "KHAK......................",
+      "KEHDKKKK..................",
+      "KEEDDGGLLKKKK.............",
+      "KEEDDGGGGGGLLLKKKKK.......",
+      "KEEDDDGGGGGGGGCCccLLKKKK..",
+      "KEEHDDDDDDDDDDDDDDDDDDDDLY",
+      "KEEHHHDDDDDHHHHHKKKKKKKK..",
+      "KEHKKKKKAAAKKKKK..........",
+      "KHK......KKK..............",
+      "KK........................",
+    ] },
+  frigate:     { accent:[110,220,255], speed:[18,26], depth:.9,  flame:6, engines:[4,5,6,7,8], rows: [
+      "............KKKK..................................",
+      "...........KDGLK..................................",
+      "..........KDDGLKKKKKKKK...........................",
+      "KKKKKKKKKKKDDGGLLLLLLLLKKKKKKKK...................",
+      "KEEEHDDDDDDDGGGGGGGGGGGGGGLLLLKKKKKKKK............",
+      "KEEEHDDAAAAAAAAAAAAAAAAAAGGGGGGGGGLLLLKKKKKK......",
+      "KEEEHDDDDDDDDDDDDDDDDDDDDDDDDDGGGGGGGCCccLLLKKKK..",
+      "KEEEHHHDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLLKY",
+      "KEEEHHHHHHDDDDDDDDDDDHHHHHHHHHHHHHHHHHHHHKKKKKKK..",
+      ".KKKKKKKHHHHDDDDHHHKKKKKKKKKKKKKKKKKKKKK..........",
+      "........KKKHHHHHKKK...............................",
+      "...........KKKKK..................................",
+    ] },
+  dreadnought: { accent:[255,200,120], speed:[6,9],   depth:.6,  flame:9, engines:[5,6,7,8,9], rows: [
+      "....................KKKKKKK..........................................",
+      "...................KDDGGGLK..........................................",
+      "..........KKKKKKKKKDDDGGGGLKKKKKKKKKKK...............................",
+      ".........KHDDDDDDDDDDDDDDDDDDDGGGGGGLKKKKKKKKKKKKKK..................",
+      "KKKKKKKKKHDDYDYDYDYDYDYDYDYDYDDDDDDDGGGGGGGGGGGGGLKKKKKKKK...........",
+      "KEEEEEHHHDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDGGGGGLLKKKKKKK...",
+      "KEEEEEHHHDDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADDDDGGGLLLKKY",
+      "KEEEEEHHHDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDLKK.",
+      "KEEEEEHHHHDDYDYDYDYDYDYDYDYDYDYDYDYDYDYDYDYDYDDDDDDDDDDDDDDDDDDDKK...",
+      "KEEEEEHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHKKKK......",
+      "KKKKKKKKKHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHKKKKKKKKKK..........",
+      ".........KKKKKHHHHHHHHHKKKKKKKKKKKKKHHHHHHHKKKKK.....................",
+      "..............KKKKKKKKK.............KKKKKKK..........................",
+    ] },
+  battlecruiser: { accent:[255,138,106], speed:[16,20], depth:.82, flame:8, big:true, engines:[8, 9, 10, 11, 12, 13, 14, 15], rows: [
+      ".................................KKYKK..........................................................................",
+      "................................KGGGGGK.........................................................................",
+      ".............................KKKKLLALLKKKKK.....................................................................",
+      "............................KGGGGGGGGGGGGGGK....................................................................",
+      "....................KKKKKKKKKLLLLGGGGGLLLLLKKKKKKKKK.K...........K...........K..................................",
+      "...................KGGGGGGGGGGGGGGGGGGGGGKGGGGGGGGGGKK...........K...........K..................................",
+      ".KKKKKKKKKKKKKKKKKKKLLLLLLLLLGGGGGGGGGGGLLLLLLLLLLLLLLLKKKKKKKKKLLLKKKKKKKKKLLLKKK..............................",
+      "KGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGDDDDDGGGGGGHHHHGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGKKKKKKKKK.....................",
+      "EELLLLLLLLLLLLLLLLLLGGGGGGGGGGGGGDDDDDDDDDDGGGGGGGGGLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLGGGGGGGGGKKKKKKKK.............",
+      "EEGGGGGGYGYGGGYGYGGGYGYGGGYGYDDDYDYDDDYDYDDDYHYDDDYDYGGGYGYGGGYGYGGGYGYGGGGGGGGGGGLLLLLLLLLGGGGGGGGKKKKKKKK.....",
+      "EEDDDDHDDDDDDDGGGGGGDDDDDDDDDDDDHDDDDDDDDDDDDHDDDDDDDDDDDDHDDDDDDDDDDLLHDDDDDDDDDDDDHDDDDDDLLLLLLLLGGGGGGGGKKKK.",
+      "EEDDDDHDDDDDDDDDDDDHDDDDDDDDDDDDHDDDDDDDDDDDDHDDDDDDDDDDDDHDDDDDDDDDDDDHDDDDDDDDDDDDHDDDDDDDDDLLLHDLLLLLLLLGGGGK",
+      "EEDDDDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADDDDDHHLLLLK",
+      "EEDDDDHDDDDDDDDDDLLHDDDDDDDDDDDDHDDDDDDDDDDDDHHHHHHHDDDDDDHDDDDDDDDDHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHKKKKKY.",
+      "EEHHHHHHHHHHHHDDDDDHDDDDDDDDDDDDHDHHHHHHHHHDDHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHKKKKKKKKKKKK.......",
+      "EEHHHHHHHHHHHHHHHHDHYDDYDDYDDYDDYHHYHHYHHYHHYHHYHHYHHYHHHHHHHHHHHHHHHHHHHHHHHHHHKKKKKKKKKKKKK...................",
+      "KHHHHHHHHHHHHHHHHHDHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHKKKKKKKKKKKK................................",
+      ".KKKKKKKKKKKKKHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHKKKKKKKKKKKKKKKKKKKKKKK............................................",
+      ".............KHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHK..................................................................",
+      "..............KKKKHHHHHHHHHHHHHHHHKKKKKKKKKKK...................................................................",
+      ".................KHHHHHHHHHHHHHHHHK.............................................................................",
+      "..................KKKKKKKKKKKKKKKK..............................................................................",
+    ] },
+  titan:       { accent:[120,255,190], speed:[10,12], depth:.72, flame:14, big:true, engines:[13, 14, 16, 17, 19, 20, 22, 23, 25, 26, 28, 29, 31, 32, 34], rows: [
+      ".......................................................................KGGGYGGGGK.................................................................................................................................",
+      "....................................................A..................KLLLLLLLLK........................A........................................................................................................",
+      "....................................................K..........KKKKKKKKKGGGGGGGGKKKKKKKK.................K........................................................................................................",
+      "....................................................K.........KGGGGGGGGGGGGGGGGGGGGGGGGGK................K........................................................................................................",
+      "....................................................K.........KLLLLLLLLLGGGGGGGGLLLLLLLLK................K........................................................................................................",
+      "..........................................KKKKKKKKKKKKKKKKKKKKKGGGGGGGGGGGGGGGGGGGGGGGGGKKKKKKKKKKKKKKKKKK........................................................................................................",
+      ".........................................KGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGK........................................................................................................",
+      ".....................KKKKKKKKKKKKKKKKKKKKKLLLLLLLLLLLLLLLLLLLLLGGGGGGGGGGGGGGGGGGGGGGGGGLLLLLLLLLLLLLLLLLKKKKKKKKKKKKKKKKKKKKK....................................................................................",
+      "....................KGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGLLLGGGGGGGGGGGGGGGGGGGGGLLLLK...................................................................................",
+      ".............KKKKKKKKLLLLLLLLLLLLLLLLLLLLLGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGLLLLLLLLLLLLLLLLLLLLLKKKKKKKKKKKKKKKKKKKKKKKKKKKKK.......................................................",
+      "............KGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGKKKKKKKKK..............................................",
+      "..KKKKKKKKKKKLLLLLLLLGGGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGGYGLYLLYLLYLLYLLYLLYLLYLLLLLLLLLGGGGGGGGGKKKKKKKK......................................",
+      ".KEEEEGGGGGGGGGHHHHGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGHHHHGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGHHHGGGGGGGGGGGGGGGGLLLLLLLLLGGGGGGGGKKKKKKKK..............................",
+      ".KEEEELLLLLLLGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGLLLGGGGGGGGGGGGGGHHGGGGGGGGGGDDDDDDDDGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGHHHGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGLLLLLLLLGGGGGGGGKKKKKKKKK.....................",
+      ".KEEEEGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGDDDDDDDDGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGLLLLLLLLGGGGGGGGGKKKKKKKK.............",
+      ".KEEEEGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGHHGGGGGGGGGGGGGGGGGGGGGDDDHDDDDDDDDDDDDDDHDDDDDDGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGLLLLLLLLLGGGGGGGGKKKKKKKK.....",
+      ".KEEEEGGGGGGGGGGYGYGYGYGYGYGYGYGYGYGYGYGYGYDYDYGYGYGYGYGYGYGYGYDYDYDYDYDYDYDYDYDYHYDYDYDYGYGYGYDYDYDYDYDYGYGYGYGYGYGYGYGYGYGYGYGYGYGYGYGYHYHYGYGYGYGYGYGYGYGYGYGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGLLLLLLLLGGGGGGGGKKKK.",
+      ".KEEEEGGGGGGGGGGGGGGGHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGK",
+      ".KEEEEGGGGGGGDDDDDDDDHDDDDDDDDDDDLLDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDGGGGDDDDDDDDDDDHDDDDDDDDDDDDDGGGGGGDDDGGGKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",
+      ".KEEEEHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDHHHHDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDHHDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHHHDDDDDDDDD..........................................",
+      ".KEEEEHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDD.........................................K",
+      ".KEEEEHDDDDDDDDDDDDDDYDDDYDDDYDDDYDDHYDDDYDDDYDDDYDHDYDDDYDDDYDDDYHDDYDDDYDHHYDDDYDDDYDDDYDDDYDDHYDDDYDDDYDDDYDHDYDDDYDDDYDDDYHDDYDDDYDDDYDDDYDDDYDDDYDDDDDDHDDDDDDDDDDD.........................................K",
+      ".KEEEEHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDD.........................................K",
+      ".KEEEEHDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA.........................................K",
+      ".KEEEEHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDHHHHDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDD..........................................",
+      ".KEEEEHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDHHDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK",
+      ".KEEEEHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDLLDDDDDHDDDDDDDDDDKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK",
+      ".KEEEEHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHK",
+      ".KEEEEHHHHHHHDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHDDDDDDDDDDDDDDHDDDDDDDDDDDDHDHDDDDHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHKKK.",
+      ".KEEEEHHHHHHHHHHHHHHHHLDDDDGGGDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDDDDDHDDDDDDDDDDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHDDDHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHKKKKKK....",
+      ".KEEEEHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHDDDDDHDDDDDDDDDDDDDDHDDDDDHHHHHHHHDHDDDDDDDDDDKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKHDDDHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHKKKKKKK..........",
+      ".KEEEEHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHDDDDDHDDDDDDDDDDDHHHHHHHHHHHHHHHHHHHHHHHHHDDDDDDDHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHKKKKKK.................",
+      ".KEEEEHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHKKKKKKK.......................",
+      ".KEEEEHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHKKKKKK..............................",
+      "..EEEEKKKKKKKHHHHHHHHHHHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHYHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHKKKKKKK....................................",
+      "............KHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHKKKKKK...........................................",
+      "............KHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHKKKKKKK.................................................",
+      ".............KKKKKKKKHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHKKKKKKKKKKKKKKKKKKKKKKKK........................................................",
+      "....................KHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHK...............................................................................",
+      ".....................KKKKKKKKKKKKKKKKKKKKKKKKKHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK................................................................................",
+      ".............................................KHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHK..................................................................................................................",
+      ".............................................KHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHK..................................................................................................................",
+      "..............................................KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK...................................................................................................................",
+      "..................................................................................................................................................................................................................",
+    ] },
+  stealth:     { accent:[185,150,255], speed:[30,40], depth:.85, flame:3, engines:[4,5,6], cloak:true, rows: [
+      "KKK.....................................",
+      "KHHKKK..................................",
+      "KEHHDDKKKKK.............................",
+      "KEEHHDDDDDDKKKKKK.......................",
+      "KEEHHHDDDDDDDDDDDKKKKKKKK...............",
+      "KEEHHHHDDDDDDDDDDDDDDDDDDKKKKKKKK.......",
+      "KEEHHHHHHDDDDDDDDDDDDDDDDDDDDDDDDKKKKK..",
+      "KAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY",
+      "KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK..",
+    ] },
+};
+const mixBg = (c, k) => c.map((v, i) => Math.round(FLEET_BG[i] + (v - FLEET_BG[i]) * k));
+const css = c => `rgb(${c[0]},${c[1]},${c[2]})`;
+for (const [name, T] of Object.entries(FLEET)) {            // pre-bake both facings once
+  T.w = T.rows[0].length; T.h = T.rows.length; T.name = name;
+  T.acc = css(mixBg(T.accent, T.depth)); T.accDim = css(mixBg(T.accent, T.depth * .55)); T.white = css(mixBg([255,255,255], T.depth));
+  T.img = [false, true].map(flip => {
+    const c = document.createElement('canvas'); c.width = T.w; c.height = T.h; const g = c.getContext('2d');
+    T.rows.forEach((row, y) => [...row].forEach((ch, x) => {
+      const col = ch === 'A' || ch === 'c' ? T.accent : FLEET_BASE[ch]; if (!col) return;
+      g.fillStyle = css(mixBg(col, T.depth)); g.fillRect(flip ? T.w - 1 - x : x, y, 1, 1);
+    }));
+    return c;
+  });
+}
+const rand = (a, b) => a + Math.random() * (b - a);
+const fleet = {
+  cv: $('#fleet'), ctx: $('#fleet').getContext('2d'), SC: 3, W: 0, H: 0,
+  ships: [], trail: [], last: 0, next: 1.2, jumpCb: null, jumpT0: 0,
+  due: { battlecruiser: CAPITAL_EVERY.battlecruiser * rand(.3, .6), titan: CAPITAL_EVERY.titan * rand(.4, .7) },
+  resize() {
+    this.W = Math.ceil(innerWidth / this.SC); this.H = Math.ceil(innerHeight / this.SC);
+    this.cv.width = this.W; this.cv.height = this.H; this.ctx.imageSmoothingEnabled = false;
+  },
+  add(type, dir, y, speed, lag = 0) {
+    const T = FLEET[type];
+    this.ships.push({ T, dir, speed, lag, x: dir > 0 ? -T.w - 12 - lag : this.W + 12 + lag, y0: y, y,
+                      amp: rand(1, 5), ph: rand(0, 6), t: 0 });
+    this.ships.sort((a, b) => a.T.depth - b.T.depth);           // far (dim) ships drawn first
+  },
+  bigY(T) { return rand(T.h / 2 + 6, Math.max(T.h / 2 + 7, this.H - T.h / 2 - 6)); },
+  spawnCapital(name) {                                          // capital ships (timed, see CAPITAL_EVERY)
+    this.due[name] = CAPITAL_EVERY[name] * rand(.85, 1.15);
+    const T = FLEET[name], dir = Math.random() < .5 ? 1 : -1, y = this.bigY(T);
+    // titan: pace it to cross any screen width in ~50 s, so it's gone before the next one is due
+    const sp = name === 'titan' ? (this.W + T.w + 24) / rand(48, 54) : rand(...T.speed);
+    this.add(name, dir, y, sp);
+    const cap = this.ships.find(s => s.T === T && s.t === 0);
+    if (name === 'titan') for (const dy of [-(T.h / 2 + 10), T.h / 2 + 10]) {   // escort flanking amidships
+      this.add('interceptor', dir, y + dy, sp);
+      const esc = this.ships.find(s => s.T.name === 'interceptor' && s.t === 0 && !s.esc);
+      esc.esc = true; esc.x = cap.x + T.w * .45;
+    }
+  },
+  spawn() {
+    if (this.ships.filter(s => !s.T.big).length >= 4) return;
+    const dir = Math.random() < .5 ? 1 : -1, y = this.H * rand(.1, .9), r = Math.random();
+    const hasBig = this.ships.some(s => s.T.name === 'dreadnought');
+    if (r < .3) {                                              // interceptor squadron, V formation
+      const sp = rand(...FLEET.interceptor.speed);
+      for (const [lag, dy] of [[0, 0], [30, -12], [30, 12]]) this.add('interceptor', dir, y + dy, sp, lag);
+    } else if (r < .58) this.add('frigate', dir, y, rand(...FLEET.frigate.speed));
+    else if (r < .8 || hasBig) this.add('stealth', dir, y, rand(...FLEET.stealth.speed));
+    else this.add('dreadnought', dir, y, rand(...FLEET.dreadnought.speed));
+  },
+  onScreen(s) { return s.x + s.T.w > 0 && s.x < this.W; },
+  visible() { return this.ships.some(s => this.onScreen(s)); },
+  jump(done) {                                                 // every visible ship jumps to lightspeed
+    const t = performance.now();
+    this.ships.forEach(s => { if (this.onScreen(s)) { s.jump = true; s.jx0 = s.x; } });
+    this.jumpCb = done; this.jumpT0 = t;
+  },
+  draw(t) {
+    if (reduced || t - this.last < 33) return;
+    const dt = Math.min(80, t - this.last) / 1000; this.last = t;
+    if (this.W !== Math.ceil(innerWidth / this.SC)) this.resize();
+    const g = this.ctx; g.clearRect(0, 0, this.W, this.H);
+    if (!this.jumpCb && (this.next -= dt) <= 0) { this.spawn(); this.next = rand(2.5, 7); }
+    if (!this.jumpCb) for (const name in this.due)             // capital timers; wait if one is still crossing
+      if ((this.due[name] -= dt) <= 0) {
+        if (this.ships.filter(s => s.T.name === name).length >= (name === 'titan' ? 1 : 2)) this.due[name] = 3;
+        else this.spawnCapital(name);
+      }
+    const jp = this.jumpCb ? Math.min(1, (t - this.jumpT0) / 480) : 0;
+    // move
+    for (let i = this.ships.length - 1; i >= 0; i--) {
+      const s = this.ships[i], T = s.T;
+      if (s.jump) s.x = s.jx0 + s.dir * jp * jp * this.W * 1.3;
+      else { s.t += dt; s.x += s.dir * s.speed * dt; s.y = s.y0 + Math.sin(s.t * .5 + s.ph) * s.amp; }
+      const gone = s.dir > 0 ? s.x > this.W + 20 : s.x < -T.w - 20;
+      if (gone && (!s.jump || jp >= 1) && s.t > 1) { this.ships.splice(i, 1); continue; }
+      // exhaust
+      if (Math.random() < .7) {
+        const ey = Math.round(s.y - T.h / 2) + T.engines[(Math.random() * T.engines.length) | 0];
+        this.trail.push({ x: s.dir > 0 ? s.x - 1 : s.x + T.w, y: ey, vx: -s.dir * rand(4, 10), vy: rand(-1.5, 1.5), life: 1,
+                          c: Math.random() < .3 ? T.white : T.acc });
+      }
+    }
+    const cap = this.ships.find(s => s.T.name === 'titan' && this.onScreen(s)) || this.ships.find(s => s.T.big && this.onScreen(s));
+    const status = !cap ? 'SYSTEMS ONLINE' : cap.T.name === 'titan' ? '⚠ TITAN-CLASS CONTACT' : '⚠ CAPITAL SHIP IN RANGE';
+    if (status !== this.status) { this.status = status; const h = $('#hudStatus'); h.textContent = status; h.classList.toggle('alert', !!cap); }
+    if (this.jumpCb && jp >= 1) { const cb = this.jumpCb; this.jumpCb = null; this.ships = this.ships.filter(s => !s.jump); this.next = 2.5; cb(); }
+    // trails (dithered fade)
+    for (let i = this.trail.length - 1; i >= 0; i--) {
+      const p = this.trail[i]; p.life -= dt * 1.1; if (p.life <= 0) { this.trail.splice(i, 1); continue; }
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      const X = Math.round(p.x), Y = Math.round(p.y);
+      if (BAYER[Y & 3][X & 3] + .5 > p.life) continue;
+      g.fillStyle = p.c; g.fillRect(X, Y, 1, 1);
+    }
+    // ships
+    for (const s of this.ships) {
+      const T = s.T, x = Math.round(s.x), y = Math.round(s.y - T.h / 2), flip = s.dir < 0;
+      if (T.cloak && !s.jump) {                               // stealth: shimmering cloak in 3 steps
+        const k = .5 + .5 * Math.sin(t / 900 + s.ph); g.globalAlpha = k > .66 ? 1 : k > .33 ? .6 : .3;
+      }
+      for (const r of T.engines) {                             // flickering engine flame
+        const L = T.flame + ((Math.random() * 3) | 0);
+        for (let i = 0; i < L; i++) {
+          g.fillStyle = i < 1 ? T.white : i < L / 2 ? T.acc : T.accDim;
+          g.fillRect(flip ? x + T.w + i : x - 1 - i, y + r, 1, 1);
+        }
+      }
+      if (s.jump) {                                            // lightspeed streak
+        const L = Math.round(jp * 110); g.fillStyle = T.white;
+        for (const r of T.engines) g.fillRect(flip ? x + T.w : x - L, y + r, L, 1);
+      }
+      g.drawImage(T.img[flip ? 1 : 0], x, y);
+      g.globalAlpha = 1;
+    }
+  },
+};
+fleet.resize();
+if (reduced) fleet.cv.hidden = true;
+let typed = '';
+document.addEventListener('keydown', e => {                   // easter egg: type "titan" or "cruiser"
+  if (reduced || e.target.tagName === 'INPUT' || e.key.length !== 1) return;
+  typed = (typed + e.key.toLowerCase()).slice(-8);
+  if (typed.endsWith('titan') && !fleet.ships.some(s => s.T.name === 'titan')) fleet.spawnCapital('titan');
+  if (typed.endsWith('cruiser') && !fleet.ships.some(s => s.T.name === 'battlecruiser')) fleet.spawnCapital('battlecruiser');
+});
+addEventListener('resize', () => fleet.resize());
+
+/* ---------- Search ---------- */
 function filter() {
   const toks = q.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
   visible = [];
@@ -427,16 +955,26 @@ function filter() {
     c.el.hidden = !show;
     if (show && !c.uncharted) { visible.push(c); c.el._key.textContent = visible.length <= 9 ? visible.length : '·'; }
   }
+  $('#crewBlock').hidden = !cards.some(c => c.zone === 'crew' && !c.el.hidden);
+  $('#openBlock').hidden = !cards.some(c => c.zone === 'open' && !c.el.hidden);
   $('#empty').hidden = cards.some(c => !c.el.hidden);
 }
 q.addEventListener('input', filter);
 q.addEventListener('keydown', e => {
   if (e.key === 'Enter' && visible[0]) { e.preventDefault(); visible[0].el.click(); }
-  if (e.key === 'Escape') { q.value = ''; filter(); q.blur(); }
+  if (e.key === 'Escape') { e.stopPropagation(); q.value = ''; filter(); q.blur(); }
 });
 document.addEventListener('keydown', e => {
-  if (warping || document.body.classList.contains('locked') || e.target === q || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (warping || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (!$('#gateDlg').hidden) { if (e.key === 'Escape') closeGate(); return; }
+  if (e.target.tagName === 'INPUT') return;
+  if (view === 'hub') {
+    if (e.key === '1') enter('open');
+    else if (e.key === '2' && hasCrew) enter('crew');
+    return;
+  }
   if (e.key === '/') { e.preventDefault(); q.focus(); }
+  else if (e.key === 'Escape') toHub();
   else if (/^[1-9]$/.test(e.key) && visible[+e.key - 1]) visible[+e.key - 1].el.click();
 });
 
@@ -512,7 +1050,7 @@ function runWarp(pal, top, dest, done) {
 }
 
 /* ---------- Portal logo ---------- */
-const pctx = $('#portal').getContext('2d'), lctx = $('#lockPortal').getContext('2d');
+const pctx = $('#portal').getContext('2d');
 const PCOLS = ['#c8b4ff','#9fd6ff','#a6efcd','#ffadc8'].map(hex);
 function drawPortal(t) {
   const S = 36, img = pctx.createImageData(S, S), d = img.data, c = 17.5;
@@ -534,7 +1072,6 @@ function drawPortal(t) {
     const k = (y*S + x)*4; d[k]=rgb[0]; d[k+1]=rgb[1]; d[k+2]=rgb[2]; d[k+3]=255;
   }
   pctx.putImageData(img, 0, 0);
-  if (document.body.classList.contains('locked')) lctx.putImageData(img, 0, 0);
 }
 
 /* ---------- Background giant ---------- */
@@ -613,6 +1150,7 @@ function drawHoles(t) {
     renderWormhole(h.img, 48, 48, h.rgb, h.o);
     h.ctx.putImageData(h.img, 0, 0);
   }
+  drawMains(t);
 }
 function drawSlow(t) {
   renderPlanet(giant.ctx, giant.S, giant.rgb, t * .001 * giant.speed, giant.o);
@@ -623,6 +1161,7 @@ function loop(t) {
   drawSky(t, dt);
   if (t - lastSlow > 90) { lastSlow = t; drawSlow(t); }   // ~11 fps for the 8-bit feel
   if (t - lastHole > 55) drawHoles(t);                     // ~18 fps wormholes
+  fleet.draw(t);                                           // ~30 fps background fleet
   requestAnimationFrame(loop);
 }
 if (reduced) { drawSky(0, 0); drawSlow(0); drawHoles(performance.now()); } else requestAnimationFrame(loop);
@@ -650,14 +1189,27 @@ async function openVault(key) {
   return JSON.parse(new TextDecoder().decode(pt)).apps;
 }
 const lockMsg = (t, bad) => { const m = $('#lockMsg'); m.textContent = t; m.classList.toggle('bad', !!bad); };
-$('#lockLab').textContent = LAB.name;
+
+function openGate() {
+  $('#gateDlg').hidden = false; lockMsg('');
+  if (!window.crypto || !crypto.subtle) { lockMsg('OPEN THIS PAGE OVER HTTPS TO UNLOCK.', true); $('#unlockBtn').disabled = true; }
+  if (mains.crew) mains.crew.target = 1;
+  setTimeout(() => $('#pw').focus(), 30);
+}
+function closeGate() {
+  $('#gateDlg').hidden = true; $('#pw').value = '';
+  if (mains.crew) mains.crew.target = 0;
+  if (location.hash === '#crew' && !crewApps) history.replaceState(null, '', location.pathname + location.search);
+}
+$('#gateClose').onclick = closeGate;
+$('#gateDlg').addEventListener('click', e => { if (e.target === e.currentTarget) closeGate(); });
 
 async function tryRemembered() {
   const saved = store.get();
-  if (!saved || !VAULT || saved.salt !== VAULT.split('.')[0]) { if (saved) store.clear(); return false; }
+  if (!saved || saved.salt !== VAULT.split('.')[0]) { if (saved) store.clear(); return false; }
   try {
     const key = await crypto.subtle.importKey('raw', unb64(saved.key), 'AES-GCM', false, ['decrypt']);
-    launch(await openVault(key)); return true;
+    crewApps = await openVault(key); updateCrewPortal(); return true;
   } catch (e) { store.clear(); return false; }
 }
 
@@ -671,22 +1223,22 @@ $('#lockForm').addEventListener('submit', async e => {
     const key = await deriveKey(pw, salt);
     const apps = await openVault(key);
     if ($('#remember').checked) store.set({ salt: VAULT.split('.')[0], key: b64(new Uint8Array(await crypto.subtle.exportKey('raw', key))) });
-    lockMsg('ACCESS GRANTED.');
-    const reveal = () => { launch(apps); $('#pw').value = ''; };
-    if (reduced) reveal(); else runWarp(PAL.lav, 'ACCESS GRANTED', 'WELCOME ABOARD', reveal);
+    crewApps = apps; updateCrewPortal();
+    closeGate();
+    enter('crew', 'ACCESS GRANTED');
   } catch (err) {
     lockMsg('ACCESS DENIED — WRONG CODE.', true);
-    const box = $('#lockBox'); box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
+    const g = $('#gateBox'); g.classList.remove('shake'); void g.offsetWidth; g.classList.add('shake');
     $('#pw').select();
   } finally { btn.disabled = false; btn.textContent = 'UNLOCK ▶'; }
 });
 
-$('#lockBtn').addEventListener('click', () => { store.clear(); location.reload(); });
+$('#lockBtn').addEventListener('click', () => { store.clear(); crewApps = null; updateCrewPortal(); toHub(); });
 
 (async () => {
-  if (!window.crypto || !crypto.subtle) { lockMsg('OPEN THIS PAGE OVER HTTPS TO UNLOCK.', true); $('#unlockBtn').disabled = true; return; }
-  if (!VAULT) { lockMsg('NO VAULT YET — SET AN ACCESS CODE WITH PORTAL-ADMIN.HTML.', true); $('#unlockBtn').disabled = true; return; }
-  if (!(await tryRemembered())) $('#pw').focus();
+  updateCrewPortal();
+  if (hasCrew && window.crypto && crypto.subtle) await tryRemembered();
+  route();
 })();
 </script>
 </body>
